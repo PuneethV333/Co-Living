@@ -5,6 +5,9 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import { config } from "./config/data.config";
+import { redisMiddleWare } from "./middleware/redis.middleware";
+import { errorHandling } from "./middleware/error.middleware";
 
 
 const app = express();
@@ -26,14 +29,14 @@ app.use(cookieParser());
 
 app.use(compression());
 
-// app.use(
-//   cors({
-//     origin: config.frontendUrl,
-//     credentials: true,
-//   }),
-// );
+app.use(
+  cors({
+    origin: config.frontendUrl,
+    credentials: true,
+  }),
+);
 
-// app.use(redisMiddleWare);
+app.use(redisMiddleWare);
 
 
 app.get("/test", (_: Request, res: Response) => {
@@ -47,6 +50,6 @@ app.use((_: Request, res: Response) => {
   });
 });
 
-// app.use(errorHandling);
+app.use(errorHandling);
 
 export default app;
