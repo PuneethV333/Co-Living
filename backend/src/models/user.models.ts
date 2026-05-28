@@ -69,7 +69,7 @@ const userSchema = new Schema<IUser>(
 userSchema.index({ role: 1, verified: 1 });
 userSchema.index({ firebaseUid: 1, role: 1 });
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (this.role === "Tenant") {
     this.ownerProfile = null;
   }
