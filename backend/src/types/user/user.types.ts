@@ -20,7 +20,6 @@ export interface IUser {
     profilePic:string,
     bio:string,
     verified:boolean,
-    tenantData:mongoose.Types.ObjectId | null,
-    ownerData:mongoose.Types.ObjectId|null,
-    
+    tenantProfile:mongoose.Types.ObjectId | null,
+    ownerProfile:mongoose.Types.ObjectId|null,
 }
