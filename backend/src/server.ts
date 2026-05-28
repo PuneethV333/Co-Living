@@ -1,7 +1,7 @@
 import app from "./app";
 import connectDB from "./db/db";
-import { connectRedis } from "./config/redis";
 import { config } from "./config/data.config";
+import { connectRedis } from "./config/redis.config";
 
 const PORT: number = Number(config.port);
 
