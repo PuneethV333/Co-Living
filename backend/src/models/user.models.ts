@@ -62,7 +62,12 @@ const userSchema = new Schema<IUser>(
       ref: "Owner",
       index: true,
     },
+    completeOnBoarding:{
+        type:Boolean,
+        default:false
+    }
   },
+  
   { timestamps: true },
 );
 

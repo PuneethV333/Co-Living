@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { getError } from "../utils/error.utils";
 import admin from "../config/firebase.config";
+import { User } from "../models/user.models";
 
 export const authMiddleWare = async (
   req: Request,
@@ -20,20 +21,15 @@ export const authMiddleWare = async (
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
 
-    // const user = await User.findOne({
-    //   firebaseUid: decodedToken.uid,
-    // });
+    const user = await User.findOne({
+      firebaseUid: decodedToken.uid,
+    });
 
-    // if (!user) {
-    //   return res.status(404).json({
-    //     message: "User not found",
-    //   });
-    // }
 
-    // req.user = {
-    //   firebaseUid: decodedToken.uid,
-    // //   role: user.role,
-    // };
+    req.user = {
+      firebaseUid: decodedToken.uid,
+      role: user?.role,
+    };
 
     next();
   } catch (err) {

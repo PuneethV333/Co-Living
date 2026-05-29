@@ -8,11 +8,11 @@ import cookieParser from "cookie-parser";
 import { config } from "./config/data.config";
 import { redisMiddleWare } from "./middleware/redis.middleware";
 import { errorHandling } from "./middleware/error.middleware";
-
+import { authRouter } from "./routes/auth.router";
 
 const app = express();
 
-app.set("trust proxy",1)
+app.set("trust proxy", 1);
 app.use(morgan("dev"));
 app.use(helmet());
 
@@ -38,6 +38,7 @@ app.use(
 
 app.use(redisMiddleWare);
 
+app.use("/api/auth", authRouter);
 
 app.get("/test", (_: Request, res: Response) => {
   res.send("Server is running");

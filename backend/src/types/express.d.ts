@@ -3,7 +3,7 @@ declare global {
         interface Request {
             user?:{
                 firebaseUid:string,
-                role:"Tenant"| "Owner"| "Admin"
+                role?:"Tenant"| "Owner"| "Admin"
             }
         }
     }
