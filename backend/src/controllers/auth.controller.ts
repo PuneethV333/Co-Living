@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getError } from "../utils/error.utils";
-import { handleAuth } from "../services/auth.services";
+import { getMeServices, handleAuth } from "../services/auth.services";
 import { authResType } from "../types/user/auth.types";
 
 export const auth = async (req: Request, res: Response) => {
@@ -27,5 +27,32 @@ export const auth = async (req: Request, res: Response) => {
     });
   } catch (err) {
     res.status(500).json(getError(err));
+  }
+};
+
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const firebaseUid = req.user?.firebaseUid;
+
+    if (!firebaseUid) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const result = await getMeServices(firebaseUid);
+
+    if (!result) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      data: result.data,
+      source: result.source,
+    });
+  } catch (err) {
+    return res.status(500).json(getError(err));
   }
 };

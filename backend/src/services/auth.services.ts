@@ -1,5 +1,6 @@
 import { User } from "../models/user.models";
-import { setValKey } from "../utils/redis.utils";
+import { GetMeServiceResponse } from "../types/user/auth.types";
+import { getVal, setValKey } from "../utils/redis.utils";
 
 export const handleAuth = async (firebaseUid: string) => {
   let user = await User.findOne({ firebaseUid }).lean();
@@ -16,4 +17,30 @@ export const handleAuth = async (firebaseUid: string) => {
   const cacheKey = `session:${firebaseUid}`;
   await setValKey(cacheKey, JSON.stringify(user), 3600);
   return { user, isNewUser };
+};
+
+export const getMeServices = async (firebaseUid: string) : Promise<GetMeServiceResponse>=> {
+  const cacheKey = `user:${firebaseUid}`;
+
+  const cached = await getVal(cacheKey);
+
+  if (cached) {
+    return {
+      data: JSON.parse(cached),
+      source: "redis",
+    };
+  }
+
+  const user = await User.findOne({ firebaseUid }).lean();
+
+  if (!user) {
+    return null;
+  }
+
+  await setValKey(cacheKey, JSON.stringify(user));
+
+  return {
+    data: user,
+    source: "db",
+  };
 };
