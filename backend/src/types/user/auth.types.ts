@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { optional } from "zod";
 import { IUser } from "./user.types";
 
 export const authResSchema = z.object({
@@ -13,3 +13,27 @@ export type GetMeServiceResponse = {
   data: IUser;
   source: "redis" | "db";
 } | null;
+
+export const tenantProfileSchema = z.object({
+    occupationStatus:z.enum(["student","working-professional","other"]),
+    monthlyIncome:z.number()
+})
+
+export const ownerProfileSchema = z.object({
+    businessName:z.string()
+})
+
+export const completeOnBoardingReqBodySchema = z.object({
+    name:z.string(),
+    profilePic:z.url().default("https://res.cloudinary.com/deymewscv/image/upload/v1760774522/hqoltmqamhhjfz7divf1.jpg"),
+    dob:z.coerce.date(),
+    email: z.email().optional(),
+    phoneNumber:z.string().optional(),
+    role:z.enum(["Tenant","Owner"]),
+    bio:z.string().optional(),
+    tenantProfile:tenantProfileSchema.optional(),
+    ownerProfile:ownerProfileSchema.optional(),
+    verified:z.boolean().default(false)
+})
+
+export type completeOnBoardingReqBodyType = z.infer<typeof completeOnBoardingReqBodySchema>

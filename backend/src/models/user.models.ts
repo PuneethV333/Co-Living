@@ -35,6 +35,10 @@ const userSchema = new Schema<IUser>(
         message: "Invalid email format",
       },
     },
+    phoneNumber:{
+        type:String,
+        maxLength:10
+    },
     profilePic: {
       type: String,
       default:

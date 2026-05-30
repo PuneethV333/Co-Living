@@ -1,7 +1,14 @@
 import { Request, Response } from "express";
 import { getError } from "../utils/error.utils";
-import { getMeServices, handleAuth } from "../services/auth.services";
-import { authResType } from "../types/user/auth.types";
+import {
+  completeOnBoardingServices,
+  getMeServices,
+  handleAuth,
+} from "../services/auth.services";
+import {
+  authResType,
+  completeOnBoardingReqBodySchema,
+} from "../types/user/auth.types";
 
 export const auth = async (req: Request, res: Response) => {
   try {
@@ -54,5 +61,35 @@ export const getMe = async (req: Request, res: Response) => {
     });
   } catch (err) {
     return res.status(500).json(getError(err));
+  }
+};
+
+export const completeOnBoarding = async (req: Request, res: Response) => {
+  try {
+    const firebaseUid = req.user?.firebaseUid;
+
+    if (!firebaseUid) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const parsed = completeOnBoardingReqBodySchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "schema mismatch",
+        error: parsed.error.message,
+      });
+    }
+
+    const result = await completeOnBoardingServices(firebaseUid, parsed.data);
+
+    return res.status(200).json({
+      data: result.user,
+      success: result.success,
+    });
+  } catch (err) {
+    res.status(500).json(getError(err));
   }
 };

@@ -22,5 +22,6 @@ export interface IUser {
     verified:boolean,
     tenantProfile:mongoose.Types.ObjectId | null,
     ownerProfile:mongoose.Types.ObjectId|null,
-    completeOnBoarding:boolean
+    completeOnBoarding:boolean,
+    phoneNumber:string
 }

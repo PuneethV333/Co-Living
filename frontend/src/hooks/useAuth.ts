@@ -1,27 +1,44 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { authApi,getMeApi } from "../api/auth.api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { authApi, completeOnBoardingApi, getMeApi } from "../api/auth.api";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "../config/firebase.config";
+import toast from "react-hot-toast";
 
 export const useAuth = () => {
-    const navigate = useNavigate()
-    return useMutation({
-        mutationFn:authApi,
-        mutationKey:["auth"],
-        onSuccess:(res) => {
-            if(res?.data?.completeOnBoarding){
-                navigate("/home")
-            }else{
-                navigate("/on-boarding")
-            }
-        }
-    })
-}
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: authApi,
+    mutationKey: ["auth"],
+    onSuccess: (res) => {
+      if (res?.data?.completeOnBoarding) {
+        navigate("/home", { replace: true });
+      } else {
+        navigate("/on-boarding", { replace: true });
+      }
+    },
+  });
+};
 
+export const useGetMe = () =>
+  useQuery({
+    queryKey: ["me"],
+    queryFn: getMeApi,
+    enabled: !!Auth.currentUser?.uid,
+  });
 
-export const useGetMe = () => 
-    useQuery({
-        queryKey:["me"],
-        queryFn:getMeApi,
-        enabled:!!Auth.currentUser?.uid
-    })
+export const useCompleteOnBoarding = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: completeOnBoardingApi,
+    mutationKey: ["on-boarding"],
+    onSuccess: (res) => {
+      queryClient.setQueryData(["me"], res);
+      toast.success("completed on-boarding");
+      navigate("/home", { replace: true });
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+};
