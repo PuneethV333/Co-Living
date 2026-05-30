@@ -52,3 +52,20 @@ export const userSchema = z.object({
 });
 
 export type UserType = z.infer<typeof userSchema>;
+
+export const signInViaEmailSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+});
+
+export type SignInViaEmailType = z.infer<typeof signInViaEmailSchema>;
+
+export const signUpViaEmailSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+  confirmPassword:z.string()
+});
+
+export type SignUpViaEmailType = z.infer<typeof signUpViaEmailSchema>;
+
+export type Mode = "login"|"signup"

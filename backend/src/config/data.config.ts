@@ -23,7 +23,7 @@ if (!envValidation.success) {
   Object.entries(process.env).forEach(([key, value]) => {
     if (
       [
-        "PORT", "FRONTEND_URL", "JWT_SECRET",
+        "PORT", "FRONTEND_URL",
         "REDIS_URL", "MONGO_URL",
         "FIREBASE_PROJECT_ID", "FIREBASE_CLIENT_EMAIL", "FIREBASE_PRIVATE_KEY",
       ].includes(key)
@@ -40,7 +40,6 @@ export const config = {
   port: envValidation.data.PORT,
   frontendUrl: envValidation.data.FRONTEND_URL,
   mongoUrl: envValidation.data.MONGO_URL,
-  jwtSecret: envValidation.data.JWT_SECRET,
   redisUrl: envValidation.data.REDIS_URL,
   firebaseProjectId: envValidation.data.FIREBASE_PROJECT_ID,
   firebaseClientEmail: envValidation.data.FIREBASE_CLIENT_EMAIL,

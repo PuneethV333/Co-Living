@@ -6,7 +6,6 @@ const userSchema = new Schema<IUser>(
     name: {
       type: String,
       trim: true,
-      required: true,
     },
     firebaseUid: {
       type: String,
@@ -35,7 +34,6 @@ const userSchema = new Schema<IUser>(
         },
         message: "Invalid email format",
       },
-      required: true,
     },
     profilePic: {
       type: String,

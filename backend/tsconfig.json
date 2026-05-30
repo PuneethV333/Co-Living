@@ -9,7 +9,11 @@
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   },
-  "include": ["src"]
+  "include": ["src/**/*"],
+  "ts-node": {
+    "files": true   // ← forces ts-node to respect "files", "include", typeRoots
+  }
 }

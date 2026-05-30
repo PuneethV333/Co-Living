@@ -1,19 +1,26 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import Spinner from "./components/Spinner";
+import {Toaster} from "react-hot-toast"
 
 
-const Login = lazy(() => import("./pages/Login.tsx"))
+const Login = lazy(() => import("./pages/Login/Login"))
 
 const App = () => {
   return (
-    <Suspense fallback={<Spinner/>}>
+    
+    <>
+    <Toaster position="top-right" />
+      <Suspense fallback={<Spinner/>}>
         
     <Routes>
         <Route path="/login" element={<Login/>}/>
             
     </Routes>
     </Suspense>
+    </>
+    
+  
   )
 };
 
