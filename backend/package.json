@@ -24,6 +24,7 @@
     "mongoose": "^9.6.2",
     "morgan": "^1.10.1",
     "redis": "^5.12.1",
+    "twilio": "^6.0.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {

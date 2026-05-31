@@ -4,10 +4,14 @@ import {
   completeOnBoardingServices,
   getMeServices,
   handleAuth,
+  sendOtpService,
+  verifyOtpService,
 } from "../services/auth.services";
 import {
   authResType,
   completeOnBoardingReqBodySchema,
+  phoneNoSchema,
+  verifyOtpSchema,
 } from "../types/user/auth.types";
 
 export const auth = async (req: Request, res: Response) => {
@@ -91,5 +95,55 @@ export const completeOnBoarding = async (req: Request, res: Response) => {
     });
   } catch (err) {
     res.status(500).json(getError(err));
+  }
+};
+
+export const sendOtp = async (req:Request,res:Response) => {
+    try {
+        const parsed = phoneNoSchema.safeParse(req.body)
+        
+        if(!parsed.success){
+            return res.status(400).json({
+                message:"invalid phone number"
+            })
+        }
+        
+        const result = await sendOtpService(parsed.data)
+        
+        return res.status(200).json({
+            success:result.success
+        })
+    } catch (err) {
+        res.status(500).json(getError(err))
+    }
+};
+
+export const verifyOtp = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const parsed = verifyOtpSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "Invalid input",
+      });
+    }
+
+    const result = await verifyOtpService(parsed.data);
+
+    if (!result.verified) {
+      return res.status(400).json({
+        message: "Invalid OTP",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Phone verified",
+    });
+  } catch (err) {
+    return res.status(500).json(getError(err));
   }
 };

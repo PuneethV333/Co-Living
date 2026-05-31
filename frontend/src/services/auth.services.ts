@@ -1,10 +1,8 @@
 import {
   createUserWithEmailAndPassword,
-  RecaptchaVerifier,
   signInWithEmailAndPassword,
-  signInWithPhoneNumber,
   signInWithPopup,
-  type ConfirmationResult,
+  signOut,
 } from "firebase/auth";
 import { Auth, googleAuthProvider } from "../config/firebase.config";
 import type {
@@ -13,6 +11,7 @@ import type {
 } from "../types/auth.types";
 
 export const signInViaEmail = async (payload: SignInViaEmailType) => {
+  await signOut(Auth);
   const credential = await signInWithEmailAndPassword(
     Auth,
     payload.email,
@@ -23,6 +22,7 @@ export const signInViaEmail = async (payload: SignInViaEmailType) => {
 };
 
 export const signUpViaEmail = async (payload: SignUpViaEmailType) => {
+  await signOut(Auth);
   const credential = await createUserWithEmailAndPassword(
     Auth,
     payload.email,
@@ -33,43 +33,8 @@ export const signUpViaEmail = async (payload: SignUpViaEmailType) => {
 };
 
 export const signInViaGoogle = async () => {
+  await signOut(Auth);
   const credential = await signInWithPopup(Auth, googleAuthProvider);
 
   return credential.user;
-};
-
-let recaptchaVerifier: RecaptchaVerifier | null = null;
-
-const getRecaptchaVerifier = () => {
-  if (!recaptchaVerifier) {
-    recaptchaVerifier = new RecaptchaVerifier(Auth, "recaptcha-container", {
-      size: "invisible",
-    });
-  }
-  return recaptchaVerifier;
-};
-
-export const sendOtp = async (
-  phoneNumber: string,
-): Promise<ConfirmationResult> => {
-  const appVerifier = getRecaptchaVerifier();
-  const confirmationResult = await signInWithPhoneNumber(
-    Auth,
-    phoneNumber,
-    appVerifier,
-  );
-  return confirmationResult;
-};
-
-export const verifyOtp = async (
-  otp: string,
-  confirmationResult: ConfirmationResult,
-) => {
-  const res = await confirmationResult.confirm(otp);
-  return res.user;
-};
-
-export const clearRecaptcha = () => {
-  recaptchaVerifier?.clear();
-  recaptchaVerifier = null;
 };

@@ -7,4 +7,7 @@ export const envSchema = z.object({
   FIREBASE_PROJECT_ID: z.string(),
   FIREBASE_CLIENT_EMAIL: z.string(),
   FIREBASE_PRIVATE_KEY: z.string(),
+  TWILIO_ACCOUNT_SID:z.string(),
+TWILIO_AUTH_TOKEN:z.string(),
+TWILIO_VERIFY_SERVICE_SID:z.string(),
 });

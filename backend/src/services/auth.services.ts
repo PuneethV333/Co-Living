@@ -1,9 +1,13 @@
+import { config } from "../config/data.config";
+import { twilioClient } from "../config/tiwlio.config";
 import { Owner } from "../models/owner.models";
 import { Tenant } from "../models/tenant.models";
 import { User } from "../models/user.models";
 import {
   completeOnBoardingReqBodyType,
   GetMeServiceResponse,
+  phoneNoType,
+  verifyOtpType,
 } from "../types/user/auth.types";
 import { getVal, setValKey } from "../utils/redis.utils";
 
@@ -72,36 +76,70 @@ export const completeOnBoardingServices = async (
   let ownerProfile = null;
   let tenantProfile = null;
   if (payload.role === "Owner") {
+    if (!payload.ownerProfile?.businessName) {
+      throw new Error("Business name is required for Owner role");
+    }
     ownerProfile = await Owner.create({
-      businessName: payload.ownerProfile?.businessName,
+      businessName: payload.ownerProfile.businessName,
     });
   } else {
+    if (!payload.tenantProfile?.occupationStatus) {
+      throw new Error("Occupation status is required for Tenant role");
+    }
     tenantProfile = await Tenant.create({
-      occupationStatus: payload.tenantProfile?.occupationStatus,
-      income: payload.tenantProfile?.monthlyIncome,
+      occupationStatus: payload.tenantProfile.occupationStatus,
+      income: payload.tenantProfile.monthlyIncome,
     });
   }
 
   const user = await User.findOneAndUpdate(
-    { firebaseUid },
-    {
-      name: payload.name,
-      role: payload.role,
-      profilePic: payload.profilePic,
-      dob: payload.dob,
-      phoneNumber: payload.phoneNumber,
-      email: payload.email,
-      bio: payload.bio,
-      verified: payload.verified,
-      tenantProfile: tenantProfile?._id ?? null,
-      ownerProfile: ownerProfile?._id ?? null,
-      completeOnBoarding: true,
-    },
-    { returnDocument: "after" },
-  );
+  { firebaseUid },
+  {
+    name: payload.name,
+    role: payload.role,
+    profilePic: payload.profilePic,
+    dob: payload.dob,
+    phoneNumber: payload.phoneNumber,
+    email: payload.email,
+    bio: payload.bio,
+    verified: payload.verified,
+    completeOnBoarding: true,
+    ...(ownerProfile && { ownerProfile: ownerProfile._id }),
+    ...(tenantProfile && { tenantProfile: tenantProfile._id }),
+  },
+  { returnDocument:"after" }
+).populate(
+  payload.role === "Owner"
+    ? "ownerProfile"
+    : "tenantProfile"
+);
 
   const cacheKey = `user:${firebaseUid}`;
   await setValKey(cacheKey, JSON.stringify(user), 3600);
 
-  return { user, success: "true" };
+  return { user, success: true };
+};
+
+export const sendOtpService = async ({ phone }: phoneNoType) => {
+  await twilioClient.verify.v2
+    .services(config.serviceSid)
+    .verifications.create({
+      to: phone,
+      channel: "sms",
+    });
+
+  return { success: true };
+};
+
+export const verifyOtpService = async ({ phone, otp }: verifyOtpType) => {
+  const result = await twilioClient.verify.v2
+    .services(config.serviceSid)
+    .verificationChecks.create({
+      to: phone,
+      code: otp,
+    });
+
+  return {
+    verified: result.status === "approved",
+  };
 };

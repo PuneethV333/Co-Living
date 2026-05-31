@@ -36,8 +36,8 @@ export const userSchema = z.object({
   completeOnBoarding: z.boolean(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  tenantProfile: tenantSchema.optional(),
-  ownerProfile: ownerSchema.optional(),
+  tenantProfile: tenantSchema.nullable(),
+  ownerProfile: ownerSchema.nullable(),
 });
 
 export type UserType = z.infer<typeof userSchema>;
@@ -52,9 +52,9 @@ export type SignInViaEmailType = z.infer<typeof signInViaEmailSchema>;
 export const signUpViaEmailSchema = z.object({
   email: z.email(),
   password: z.string().min(8),
-  confirmPassword:z.string()
+  confirmPassword: z.string(),
 });
 
 export type SignUpViaEmailType = z.infer<typeof signUpViaEmailSchema>;
 
-export type Mode = "login"|"signup"
+export type Mode = "login" | "signup";

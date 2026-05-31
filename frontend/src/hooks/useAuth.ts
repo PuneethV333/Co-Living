@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { authApi, completeOnBoardingApi, getMeApi } from "../api/auth.api";
+import {
+  authApi,
+  completeOnBoardingApi,
+  getMeApi,
+  sendOtpApi,
+  verifyOtpApi,
+} from "../api/auth.api";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "../config/firebase.config";
 import toast from "react-hot-toast";
@@ -40,5 +46,19 @@ export const useCompleteOnBoarding = () => {
     onError: (err) => {
       toast.error(err.message);
     },
+  });
+};
+
+export const useSendOtp = () => {
+  return useMutation({
+    mutationFn: sendOtpApi,
+    mutationKey: ["otp"],
+  });
+};
+
+export const useVerifyOtp = () => {
+  return useMutation({
+    mutationFn: verifyOtpApi,
+    mutationKey: ["otp", "verify"],
   });
 };

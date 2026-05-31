@@ -4,7 +4,6 @@ import { envSchema } from "../types/data.types";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
-
 const envValidation = envSchema.safeParse(process.env);
 
 if (!envValidation.success) {
@@ -23,9 +22,16 @@ if (!envValidation.success) {
   Object.entries(process.env).forEach(([key, value]) => {
     if (
       [
-        "PORT", "FRONTEND_URL",
-        "REDIS_URL", "MONGO_URL",
-        "FIREBASE_PROJECT_ID", "FIREBASE_CLIENT_EMAIL", "FIREBASE_PRIVATE_KEY",
+        "PORT",
+        "FRONTEND_URL",
+        "REDIS_URL",
+        "MONGO_URL",
+        "FIREBASE_PROJECT_ID",
+        "FIREBASE_CLIENT_EMAIL",
+        "FIREBASE_PRIVATE_KEY",
+        "TWILIO_ACCOUNT_SID",
+        "TWILIO_AUTH_TOKEN",
+        "TWILIO_VERIFY_SERVICE_SID",
       ].includes(key)
     ) {
       console.error(`  ${key}: ${value ? "✅" : "❌"}`);
@@ -44,6 +50,9 @@ export const config = {
   firebaseProjectId: envValidation.data.FIREBASE_PROJECT_ID,
   firebaseClientEmail: envValidation.data.FIREBASE_CLIENT_EMAIL,
   firebasePrivateKey: envValidation.data.FIREBASE_PRIVATE_KEY,
+  accountSid: envValidation.data.TWILIO_ACCOUNT_SID,
+  authToken: envValidation.data.TWILIO_AUTH_TOKEN,
+  serviceSid: envValidation.data.TWILIO_VERIFY_SERVICE_SID,
 } as const;
 
 console.log("✅ Configuration loaded successfully");
