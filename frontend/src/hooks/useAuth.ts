@@ -9,6 +9,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Auth } from "../config/firebase.config";
 import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 
 export const useAuth = () => {
   const navigate = useNavigate();
@@ -25,12 +27,24 @@ export const useAuth = () => {
   });
 };
 
-export const useGetMe = () =>
-  useQuery({
+export const useGetMe = () => {
+  const [uid, setUid] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(Auth, (user) => {
+      setUid(user?.uid ?? null);
+      setAuthReady(true);      // ← Firebase has resolved, safe to query
+    });
+    return () => unsubscribe();
+  }, []);
+
+  return useQuery({
     queryKey: ["me"],
     queryFn: getMeApi,
-    enabled: !!Auth.currentUser?.uid,
+    enabled: authReady && !!uid,  // ← only fires after Firebase confirms session
   });
+};
 
 export const useCompleteOnBoarding = () => {
   const navigate = useNavigate();

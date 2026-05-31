@@ -9,6 +9,7 @@ import { config } from "./config/data.config";
 import { redisMiddleWare } from "./middleware/redis.middleware";
 import { errorHandling } from "./middleware/error.middleware";
 import { authRouter } from "./routes/auth.router";
+import { propertyRouter } from "./routes/property.router";
 
 const app = express();
 
@@ -17,10 +18,10 @@ app.use(morgan("dev"));
 app.use(helmet());
 
 app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 1000,
-  }),
+    rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 1000,
+    }),
 );
 
 app.use(express.json({ limit: "10kb" }));
@@ -30,25 +31,26 @@ app.use(cookieParser());
 app.use(compression());
 
 app.use(
-  cors({
-    origin: config.frontendUrl,
-    credentials: true,
-  }),
+    cors({
+        origin: config.frontendUrl,
+        credentials: true,
+    }),
 );
 
 app.use(redisMiddleWare);
 
 app.use("/api/auth", authRouter);
+app.use("/api/property", propertyRouter);
 
 app.get("/test", (_: Request, res: Response) => {
-  res.send("Server is running");
+    res.send("Server is running");
 });
 
 app.use((_: Request, res: Response) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
+    res.status(404).json({
+        success: false,
+        message: "Route not found",
+    });
 });
 
 app.use(errorHandling);

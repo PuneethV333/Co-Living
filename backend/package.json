@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@qdrant/js-client-rest": "^1.18.0",
     "axios": "^1.16.1",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
