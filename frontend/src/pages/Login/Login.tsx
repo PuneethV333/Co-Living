@@ -20,8 +20,6 @@ const Login = () => {
 
   const { mutateAsync: auth, isPending } = useAuth();
   const isSignup = mode === "signup";
-  
-  
 
   const handleAuth = async () => {
     try {

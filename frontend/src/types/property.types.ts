@@ -1,64 +1,99 @@
-import z from "zod";
+import { z } from "zod";
 
-export const ownerId = z.object({
-    name: z.string(),
-    phone: z.string(),
-    verified: z.boolean()
-})
+// ── Owner (populated) ─────────────────────────────────────────────────────────
+export const ownerIdSchema = z.object({
+  _id: z.string(),
+  name: z.string(),
+  verified: z.boolean(),
+});
 
+// ── Property ──────────────────────────────────────────────────────────────────
+export const propertySchema = z.object({
+  _id: z.string(),
+  ownerId: ownerIdSchema,
+  name: z.string(),
+  description: z.string(),
+  location: z.object({
+    address: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zipCode: z.string(),
+    coordinates: z.object({
+      lat: z.number(),
+      lng: z.number(),
+    }),
+  }),
+  propertyType: z.enum([
+    "apartment","house","villa","studio","pg",
+    "hostel","farmhouse","office","shop","warehouse","land",
+  ]),
+  totalRooms: z.number(),
+  totalBedRooms: z.number(),
+  totalBathrooms: z.number(),
+  builtUpArea: z.number(),
+  amenities: z.array(z.string()),
+  rules: z.array(z.string()),
+  photos: z.array(z.string()),
+  verified: z.boolean(),
+  isActive: z.boolean(),
+  rating: z.number(),
+  totalReviews: z.number(),
+  embeddingGenerated: z.boolean(),
+  searchText: z.string(),
+  aiTags: z.array(z.string()),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
 
-export const getPropertySchema = z.object({
-    ownerId: ownerId,
-    name: z.string(),
-    description: z.string(),
-    location: {
-        address: z.string(),
-        city: z.string(),
-        zipCode: z.string(),
-        coordinates: {
-            lat: z.string(),
-            lng: z.string()
-        }
-    },
-    propertyType: z.enum(["apartment",
-        "house",
-        "villa",
-        "studio",
-        "pg",
-        "hostel",
-        "farmhouse",
-        "office",
-        "shop",
-        "warehouse",
-        "land",]),
-    totalRooms: z.number().default(0),
-    totalBedRooms: z.number().default(0),
-    totalBathrooms: z.number().default(0),
-    builtUpArea: z.number().default(0),
-    amenities: z.enum([
-        "wifi",
-        "parking",
-        "ac",
-        "tv",
-        "kitchen",
-        "washingMachine",
-        "powerBackup",
-        "lift",
-        "gym",
-        "swimmingPool",
-        "security",
-        "petFriendly",
-        "balcony",
-        "garden",
-        "waterSupply",
-        "geyser",
-        "furnished",
-    ]),
-    rules:z.string().array(),
-    photos:z.string().array(),
-    verified:z.boolean(),
-    isActive:z.boolean(),
-    rating:z.number().min(0).max(5)
-})
+export const propertiesResponseSchema = z.object({
+  data: z.array(propertySchema),
+  message: z.string().optional(),
+});
 
-export type getPropertyType = z.infer<typeof getPropertySchema>
+export type PropertyType = z.infer<typeof propertySchema>;
+export type PropertiesResponse = z.infer<typeof propertiesResponseSchema>;
+
+// ── Room ──────────────────────────────────────────────────────────────────────
+export const roomSchema = z.object({
+  _id: z.string(),
+  propertyId: z.string(),
+  roomDetails: z.object({
+    roomType: z.enum(["shared", "private"]),
+    capacity: z.number(),
+    bedType: z.enum(["single", "double", "bunk"]),
+    area: z.number(),
+  }),
+  pricing: z.object({
+    monthlyRent: z.number(),
+    securityDeposit: z.number(),
+    maintenanceCharges: z.number(),
+  }),
+  amenities: z.array(z.string()),
+  availability: z.object({
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date().nullable(),
+    currentOccupants: z.number(),
+  }),
+  photos: z.array(z.string()),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export const roomsResponseSchema = z.object({
+  data: z.array(roomSchema),
+  message: z.string().optional(),
+});
+
+export type RoomType = z.infer<typeof roomSchema>;
+export type RoomsResponse = z.infer<typeof roomsResponseSchema>;
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+const PROPERTY_EMOJIS: Record<string, string> = {
+  apartment: "🏢", house: "🏠", villa: "🏡",
+  studio: "🏙️", pg: "🏘️", hostel: "🏨",
+  farmhouse: "🌾", office: "🏢", shop: "🏪",
+  warehouse: "🏭", land: "🌿",
+};
+
+export const getPropertyEmoji = (type: string) =>
+  PROPERTY_EMOJIS[type] ?? "🏠";

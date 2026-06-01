@@ -110,9 +110,7 @@ const roomSchema = new Schema<IRoom>(
   },
 );
 
-roomSchema.index({
-  propertyId: 1,
-});
+
 
 roomSchema.index({
   "pricing.monthlyRent": 1,

@@ -58,3 +58,9 @@ export const signUpViaEmailSchema = z.object({
 export type SignUpViaEmailType = z.infer<typeof signUpViaEmailSchema>;
 
 export type Mode = "login" | "signup";
+
+export type City = "Bengaluru" | "Mumbai" | "Delhi" | "Pune" | "Hyderabad";
+export type RoomType = "Shared" | "Private";
+export type PropertyType = "Apartment" | "House" | "Condo";
+export type Amenity = "WiFi" | "AC" | "Gym" | "Parking" | "Laundry" | "CCTV";
+export type Gender = "Any" | "Male" | "Female";

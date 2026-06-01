@@ -34,7 +34,7 @@ export const useGetMe = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(Auth, (user) => {
       setUid(user?.uid ?? null);
-      setAuthReady(true);      // ← Firebase has resolved, safe to query
+      setAuthReady(true);      
     });
     return () => unsubscribe();
   }, []);
@@ -42,7 +42,7 @@ export const useGetMe = () => {
   return useQuery({
     queryKey: ["me"],
     queryFn: getMeApi,
-    enabled: authReady && !!uid,  // ← only fires after Firebase confirms session
+    enabled: authReady && !!uid,  
   });
 };
 

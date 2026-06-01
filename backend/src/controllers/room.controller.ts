@@ -1,8 +1,8 @@
 import { Request, Response } from "express"
 import { getError } from "../utils/error.utils"
-import { getPropertyDataService } from "../services/property.services"
+import { getRoomDataService } from "../services/room.services"
 
-export const getPropertyData = async (req: Request, res: Response) => {
+export const getRoomData = async (req: Request, res: Response) => {
     try {
         const firebaseUid = req.user?.firebaseUid
 
@@ -12,7 +12,7 @@ export const getPropertyData = async (req: Request, res: Response) => {
             })
         }
 
-        const result = await getPropertyDataService(firebaseUid)
+        const result = await getRoomDataService(firebaseUid)
 
         return res.status(200).json({
             data: result.data,

@@ -7,33 +7,35 @@ import {
   Heart,
   X,
   SlidersHorizontal,
+  RotateCcw,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import gsap from "gsap";
+import { useUiContext } from "../../../hooks/useUiContext";
+import useIsMobile from "../../../hooks/useIsMobile";
+import { useFilters } from "../../../hooks/useFilters";
 
-// ── Types ────────────────────────────────────────────────────────────────────
-type City = "Bengaluru" | "Mumbai" | "Delhi" | "Pune" | "Hyderabad";
-type RoomType = "Shared" | "Private";
-type PropertyType = "Apartment" | "House" | "Condo";
-type Amenity = "WiFi" | "AC" | "Gym" | "Parking" | "Laundry" | "CCTV";
-type Gender = "Any" | "Male" | "Female";
 
-// ── Static filter data ───────────────────────────────────────────────────────
-const CITIES: City[] = ["Bengaluru", "Mumbai", "Delhi", "Pune", "Hyderabad"];
-const ROOM_TYPES: RoomType[] = ["Shared", "Private"];
-const PROPERTY_TYPES: PropertyType[] = ["Apartment", "House", "Condo"];
-const AMENITIES: Amenity[] = ["WiFi", "AC", "Gym", "Parking", "Laundry", "CCTV"];
-const GENDERS: Gender[] = ["Any", "Male", "Female"];
+// ── Static data ───────────────────────────────────────────────────────────────
+const CITIES     = ["Bengaluru", "Mumbai", "Delhi", "Pune", "Hyderabad"];
+const ROOM_TYPES = [
+  { label: "All",     value: "all"     },
+  { label: "Shared",  value: "shared"  },
+  { label: "Private", value: "private" },
+] as const;
+const PROPERTY_TYPES = ["apartment", "house", "villa", "pg", "studio", "hostel"];
+const AMENITIES      = ["wifi", "ac", "gym", "parking", "washingMachine", "security", "lift", "furnished"];
+const GENDERS        = ["Any", "Male", "Female"];
 
 const NAV_ITEMS = [
-  { icon: Home, label: "Home", to: "/home", badge: null },
-  { icon: Search, label: "Browse", to: "/home/browse", badge: 124 },
-  { icon: Users, label: "Roommates", to: "/home/roommates", badge: null },
-  { icon: BookOpen, label: "My Bookings", to: "/home/bookings", badge: null },
-  { icon: Heart, label: "Saved", to: "/home/saved", badge: null },
+  { icon: Home,      label: "Home",        to: "/home",           badge: null },
+  { icon: Search,    label: "Browse",      to: "/home/browse",    badge: 124  },
+  { icon: Users,     label: "Roommates",   to: "/home/roommates", badge: null },
+  { icon: BookOpen,  label: "My Bookings", to: "/home/bookings",  badge: null },
+  { icon: Heart,     label: "Saved",       to: "/home/saved",     badge: null },
 ];
 
-// ── Chip component ───────────────────────────────────────────────────────────
+// ── Chip ──────────────────────────────────────────────────────────────────────
 const Chip = ({
   label,
   active,
@@ -45,7 +47,7 @@ const Chip = ({
 }) => (
   <button
     onClick={onClick}
-    className={`rounded-full px-3 py-1 text-[12px] font-medium border transition-all duration-200 ${
+    className={`rounded-full px-3 py-1 text-[12px] font-medium border transition-all duration-200 capitalize ${
       active
         ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-500/30"
         : "border-white/10 bg-white/5 text-zinc-400 hover:border-white/20 hover:text-white"
@@ -55,75 +57,68 @@ const Chip = ({
   </button>
 );
 
-// ── Section label ────────────────────────────────────────────────────────────
 const SectionLabel = ({ label }: { label: string }) => (
   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-600 mb-2.5">
     {label}
   </p>
 );
 
-// ── Main SideBar ─────────────────────────────────────────────────────────────
-import { useState } from "react";
-import { useUiContext } from "../../../hooks/useUiContext";
-import useIsMobile from "../../../hooks/useIsMobile";
-
+// ── SideBar ───────────────────────────────────────────────────────────────────
 const SideBar = () => {
   const { menuIsOpen, setMenuIsOpen } = useUiContext();
   const isMobile = useIsMobile();
   const backdropRef = useRef<HTMLDivElement>(null);
+  const { filters, setFilter, resetFilters, toggleList } = useFilters();
 
-  // Filter state
-  const [city, setCity] = useState<City>("Bengaluru");
-  const [roomType, setRoomType] = useState<RoomType>("Shared");
-  const [propTypes, setPropTypes] = useState<PropertyType[]>([]);
-  const [budget, setBudget] = useState(20000);
-  const [amenities, setAmenities] = useState<Amenity[]>([]);
-  const [gender, setGender] = useState<Gender>("Any");
+  // count active filters for badge
+  const activeFilterCount = [
+    filters.city !== "Bengaluru",
+    filters.roomType !== "all",
+    filters.propertyTypes.length > 0,
+    filters.maxBudget < 80000,
+    filters.amenities.length > 0,
+    filters.gender !== "Any",
+  ].filter(Boolean).length;
 
-  const toggleArr = <T,>(arr: T[], setArr: (v: T[]) => void, val: T) =>
-    setArr(arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
-
-  // Animate backdrop
   useEffect(() => {
     if (!backdropRef.current || !isMobile) return;
     if (menuIsOpen) {
-      gsap.to(backdropRef.current, { opacity: 0, duration: 0.3, display: "block" });
+      gsap.to(backdropRef.current, { opacity: 1, duration: 0.3, pointerEvents: "auto" });
     } else {
       gsap.to(backdropRef.current, {
-        opacity: 0,
-        duration: 0.25,
-        onComplete: () => {
-          if (backdropRef.current) backdropRef.current.style.display = "none";
-        },
+        opacity: 0, duration: 0.25, pointerEvents: "none",
       });
     }
   }, [menuIsOpen, isMobile]);
 
-  const formatBudget = (v: number) => `₹${(v / 1000).toFixed(0)}K/mo`;
+  const formatBudget = (v: number) =>
+    v >= 80000 ? "₹80K+" : `₹${(v / 1000).toFixed(0)}K/mo`;
 
   return (
     <>
-      {/* Mobile backdrop */}
       {isMobile && (
         <div
           ref={backdropRef}
           onClick={() => setMenuIsOpen(false)}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-10 hidden"
+          className="fixed inset-0 bg-black/60 z-10 hidden opacity-0 pointer-events-none"
         />
       )}
 
-      {/* Sidebar panel */}
       <div className="h-full w-full overflow-y-auto overflow-x-hidden scrollbar-hide px-4 py-5 flex flex-col gap-6">
 
-        {/* Mobile close row */}
+        {/* Mobile header */}
         {isMobile && (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SlidersHorizontal size={16} className="text-orange-400" />
               <span className="text-[14px] font-semibold text-white">Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="rounded-full bg-orange-500 px-2 py-0.5 text-[11px] font-bold text-white">
+                  {activeFilterCount}
+                </span>
+              )}
             </div>
             <button
-            title="clc"
               onClick={() => setMenuIsOpen(false)}
               className="h-8 w-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition"
             >
@@ -166,7 +161,6 @@ const SideBar = () => {
           </nav>
         </div>
 
-        {/* Divider */}
         <div className="h-px bg-white/5" />
 
         {/* City */}
@@ -174,7 +168,12 @@ const SideBar = () => {
           <SectionLabel label="City" />
           <div className="flex flex-wrap gap-2">
             {CITIES.map((c) => (
-              <Chip key={c} label={c} active={city === c} onClick={() => setCity(c)} />
+              <Chip
+                key={c}
+                label={c}
+                active={filters.city === c}
+                onClick={() => setFilter("city", c)}
+              />
             ))}
           </div>
         </div>
@@ -183,8 +182,13 @@ const SideBar = () => {
         <div>
           <SectionLabel label="Room Type" />
           <div className="flex flex-wrap gap-2">
-            {ROOM_TYPES.map((r) => (
-              <Chip key={r} label={r} active={roomType === r} onClick={() => setRoomType(r)} />
+            {ROOM_TYPES.map(({ label, value }) => (
+              <Chip
+                key={value}
+                label={label}
+                active={filters.roomType === value}
+                onClick={() => setFilter("roomType", value)}
+              />
             ))}
           </div>
         </div>
@@ -197,8 +201,8 @@ const SideBar = () => {
               <Chip
                 key={p}
                 label={p}
-                active={propTypes.includes(p)}
-                onClick={() => toggleArr(propTypes, setPropTypes, p)}
+                active={filters.propertyTypes.includes(p)}
+                onClick={() => toggleList("propertyTypes", p)}
               />
             ))}
           </div>
@@ -208,7 +212,7 @@ const SideBar = () => {
         <div>
           <SectionLabel label="Max Budget" />
           <p className="text-[15px] font-bold text-white mb-3">
-            {formatBudget(budget)}
+            {formatBudget(filters.maxBudget)}
           </p>
           <input
             title="budget"
@@ -216,8 +220,8 @@ const SideBar = () => {
             min={3000}
             max={80000}
             step={1000}
-            value={budget}
-            onChange={(e) => setBudget(+e.target.value)}
+            value={filters.maxBudget}
+            onChange={(e) => setFilter("maxBudget", +e.target.value)}
             className="w-full accent-orange-500 h-1.5 rounded-full cursor-pointer"
           />
           <div className="flex justify-between mt-1.5">
@@ -234,8 +238,8 @@ const SideBar = () => {
               <Chip
                 key={a}
                 label={a}
-                active={amenities.includes(a)}
-                onClick={() => toggleArr(amenities, setAmenities, a)}
+                active={filters.amenities.includes(a)}
+                onClick={() => toggleList("amenities", a)}
               />
             ))}
           </div>
@@ -246,18 +250,35 @@ const SideBar = () => {
           <SectionLabel label="Preferred For" />
           <div className="flex flex-wrap gap-2">
             {GENDERS.map((g) => (
-              <Chip key={g} label={g} active={gender === g} onClick={() => setGender(g)} />
+              <Chip
+                key={g}
+                label={g}
+                active={filters.gender === g}
+                onClick={() => setFilter("gender", g)}
+              />
             ))}
           </div>
         </div>
 
-        {/* Apply button */}
-        <button
-          onClick={() => isMobile && setMenuIsOpen(false)}
-          className="mt-auto w-full rounded-xl bg-orange-500 py-3 text-[13px] font-bold text-white hover:bg-orange-400 transition shadow-lg shadow-orange-500/20 active:scale-[0.98]"
-        >
-          Apply Filters
-        </button>
+        {/* Actions */}
+        <div className="flex flex-col gap-2 mt-auto pt-2">
+          {activeFilterCount > 0 && (
+            <button
+              onClick={resetFilters}
+              className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/10 py-2.5 text-[13px] font-medium text-zinc-400 hover:text-white hover:border-white/20 transition"
+            >
+              <RotateCcw size={13} /> Reset filters
+            </button>
+          )}
+          <button
+            onClick={() => isMobile && setMenuIsOpen(false)}
+            className="w-full rounded-xl bg-orange-500 py-3 text-[13px] font-bold text-white hover:bg-orange-400 transition shadow-lg shadow-orange-500/20 active:scale-[0.98]"
+          >
+            {activeFilterCount > 0
+              ? `Apply ${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""}`
+              : "Apply Filters"}
+          </button>
+        </div>
       </div>
     </>
   );
