@@ -11,6 +11,7 @@ import { errorHandling } from "./middleware/error.middleware";
 import { authRouter } from "./routes/auth.router";
 import { propertyRouter } from "./routes/property.router";
 import { roomRouter } from "./routes/room.router";
+import { notificationRouter } from "./routes/notification.router";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use(redisMiddleWare);
 app.use("/api/auth", authRouter);
 app.use("/api/property", propertyRouter);
 app.use("/api/room", roomRouter);
+app.use("/api/notification", notificationRouter);
 
 app.get("/test", (_: Request, res: Response) => {
     res.send("Server is running");
