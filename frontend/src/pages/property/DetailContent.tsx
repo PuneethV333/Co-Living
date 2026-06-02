@@ -1,5 +1,8 @@
 import { useState } from "react";
-import type { propertyOwnerType, PropertyType } from "../../types/property.types";
+import type {
+  propertyOwnerType,
+  PropertyType,
+} from "../../types/property.types";
 import { Section } from "./Section";
 import {
   MapPin,
@@ -27,6 +30,9 @@ import {
   Thermometer,
   Sofa,
 } from "lucide-react";
+import { useCreateNotification } from "../../hooks/useNatification";
+import { useGetMe } from "../../hooks/useAuth";
+import Spinner from "../../components/Spinner";
 
 const AMENITY_CONFIG: Record<string, { icon: React.ReactNode; label: string }> =
   {
@@ -59,16 +65,20 @@ export const DetailContent = ({
   property: PropertyType;
   emoji: string;
 }) => {
+  const { mutate: createNotification, isPending: creatingNotification } =
+    useCreateNotification();
+  const { data: me, isPending: loadingYou } = useGetMe();
   const [photoIndex, setPhotoIndex] = useState(0);
   const hasPhotos = property.photos.length > 0;
 
+  if (!me || loadingYou) {
+    return <Spinner />;
+  }
+
   return (
     <>
-      
       <Section id="overview" title="Overview">
-        
         <div className="flex flex-col gap-2">
-          
           <div className="relative h-52 md:h-64 rounded-2xl overflow-hidden bg-zinc-800/60 flex items-center justify-center">
             {hasPhotos ? (
               <img
@@ -79,7 +89,7 @@ export const DetailContent = ({
             ) : (
               <span className="text-7xl opacity-50">{emoji}</span>
             )}
-            
+
             <div className="absolute top-3 left-3 flex gap-1.5">
               {property.verified && (
                 <span className="flex items-center gap-1 rounded-full bg-green-500/20 border border-green-500/30 px-2.5 py-1 text-[10px] font-bold text-green-400 backdrop-blur-sm">
@@ -92,7 +102,6 @@ export const DetailContent = ({
             </div>
           </div>
 
-          
           {hasPhotos && property.photos.length > 1 && (
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {property.photos.map((photo, i) => (
@@ -116,7 +125,6 @@ export const DetailContent = ({
           )}
         </div>
 
-        
         <div className="grid grid-cols-4 gap-2">
           {[
             {
@@ -151,14 +159,12 @@ export const DetailContent = ({
           ))}
         </div>
 
-        
         <div className="rounded-2xl border border-white/5 bg-white/3 p-4">
           <p className="text-[13px] text-zinc-400 leading-relaxed">
             {property.description}
           </p>
         </div>
 
-        
         <div className="rounded-2xl border border-white/5 bg-white/3 p-4 flex items-start gap-3">
           <div className="h-9 w-9 rounded-xl bg-orange-500/15 flex items-center justify-center shrink-0">
             <MapPin size={16} className="text-orange-400" />
@@ -181,7 +187,6 @@ export const DetailContent = ({
         </div>
       </Section>
 
-      
       <Section id="amenities" title="Amenities">
         {property.amenities.length === 0 ? (
           <p className="text-[13px] text-zinc-600">No amenities listed.</p>
@@ -207,7 +212,6 @@ export const DetailContent = ({
           </div>
         )}
 
-        
         {property.aiTags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-1">
             {property.aiTags.map((tag) => (
@@ -222,7 +226,6 @@ export const DetailContent = ({
         )}
       </Section>
 
-      
       <Section id="pricing" title="Pricing Overview">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
@@ -260,7 +263,6 @@ export const DetailContent = ({
           ))}
         </div>
 
-        
         <div className="rounded-2xl border border-white/5 bg-white/3 p-4 flex items-center justify-between gap-4">
           <div>
             <p className="text-[14px] font-semibold text-white">
@@ -276,7 +278,6 @@ export const DetailContent = ({
         </div>
       </Section>
 
-      
       <Section id="rules" title="House Rules & Terms">
         {property.rules.length === 0 ? (
           <p className="text-[13px] text-zinc-600">No specific rules listed.</p>
@@ -301,7 +302,6 @@ export const DetailContent = ({
         )}
       </Section>
 
-      
       <Section id="owner" title="Owner Details">
         <div className="rounded-2xl border border-white/5 bg-white/3 p-4">
           <div className="flex items-center gap-3 mb-4">
@@ -311,7 +311,8 @@ export const DetailContent = ({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-[15px] font-semibold text-white truncate">
-                  {(property.ownerId as propertyOwnerType)?.name ?? "Property Owner"}
+                  {(property.ownerId as propertyOwnerType)?.name ??
+                    "Property Owner"}
                 </p>
                 {(property.ownerId as propertyOwnerType)?.verified && (
                   <span className="flex items-center gap-1 rounded-full bg-green-500/15 border border-green-500/20 px-2 py-0.5 text-[10px] font-semibold text-green-400 shrink-0">
@@ -331,13 +332,23 @@ export const DetailContent = ({
                 </span>
               </div>
             )}
-            <button className="w-full flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 text-[13px] font-bold text-white hover:bg-orange-400 transition shadow-lg shadow-orange-500/20 active:scale-[0.98]">
+            <button
+              type="button"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 text-[13px] font-bold text-white hover:bg-orange-400 transition shadow-lg shadow-orange-500/20 active:scale-[0.98]"
+              onClick={() => {
+                createNotification({
+                  senderId: me._id,
+                  receiverId: property.ownerId._id,
+                  type: "VISIT_REQUEST",
+                });
+              }}
+              disabled = {creatingNotification}
+            >
               <Phone size={14} /> Request a Visit
             </button>
           </div>
         </div>
 
-        
         <div className="rounded-2xl border border-white/5 bg-white/3 p-4 flex items-center gap-3">
           <div className="h-9 w-9 rounded-xl bg-orange-500 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/30">
             <span className="text-sm font-bold text-white">C</span>
@@ -353,7 +364,6 @@ export const DetailContent = ({
         </div>
       </Section>
 
-      
       <div className="h-8" />
     </>
   );
