@@ -27,7 +27,7 @@ export const getPropertyDataService = async (
     const data = await Property.find({
         isActive: true,
     })
-        .populate("ownerId", "name phone verified")
+        .populate("ownerId", "name phoneNumber verified")
         .lean();
 
     await setValKey(

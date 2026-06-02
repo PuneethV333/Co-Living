@@ -41,7 +41,7 @@ export const useFilters = () => {
             if (value.length === 0) next.delete(key);
             else next.set(key, (value as string[]).join(","));
           } else if (value === DEFAULTS[key]) {
-            next.delete(key); // keep URL clean
+            next.delete(key);
           } else {
             next.set(key, String(value));
           }

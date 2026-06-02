@@ -3,13 +3,15 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Spinner from "./components/Spinner";
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home/Home";
-import Dashboard from "./pages/Home/subPages/Dashboard";
+
 import { Auth } from "./config/firebase.config";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useGetMe } from "./hooks/useAuth";
 
 const Login = lazy(() => import("./pages/Login/Login"));
 const OnBoarding = lazy(() => import("./pages/OnBoarding/OnBoarding"));
+const Dashboard = lazy(() => import("./pages/Home/subPages/Dashboard"));
+const PropertyDetail = lazy(() => import("./pages/property/PropertyDetail"));
 const App = () => {
   const [user, authLoading] = useAuthState(Auth);
   const { data, isPending } = useGetMe();
@@ -62,6 +64,7 @@ const App = () => {
             }
           >
             <Route index element={<Dashboard />} />
+            <Route path="property/details/:id" element={<PropertyDetail />} />
           </Route>
         </Routes>
       </Suspense>

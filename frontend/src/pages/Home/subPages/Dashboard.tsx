@@ -13,52 +13,24 @@ import {
 import { useState } from "react";
 import { useGetProperties, useGetRooms } from "../../../hooks/useProperty";
 import { useFilters } from "../../../hooks/useFilters";
-// import { useFilteredProperties, useFilteredRooms } from "../../../hooks/useFilteredData";
 import { PropertyCard } from "../../../components/PropertyCard";
 import { RoomRow } from "../../../components/RoomRow";
-import { useFilteredProperties, useFilteredRooms } from "../../../hooks/useFiltereData";
+import {
+  useFilteredProperties,
+  useFilteredRooms,
+} from "../../../hooks/useFilteredData";
+import { CardSkeleton } from "../component/CardSkeleton";
+import { EmptyState } from "../component/EmptyState";
+import { RoomSkeleton } from "../component/RoomSkeleton";
 
 const SORT_LABELS: Record<string, string> = {
   recommended: "Recommended",
-  price_low:   "Price Low → High",
-  price_high:  "Price High → Low",
-  newest:      "Newest",
-  top_rated:   "Top Rated",
+  price_low: "Price Low → High",
+  price_high: "Price High → Low",
+  newest: "Newest",
+  top_rated: "Top Rated",
 };
 
-// ── Skeletons ─────────────────────────────────────────────────────────────────
-const CardSkeleton = () => (
-  <div className="rounded-2xl border border-white/5 bg-white/3 overflow-hidden animate-pulse">
-    <div className="h-36 bg-zinc-800/60" />
-    <div className="p-4 flex flex-col gap-2">
-      <div className="h-3 w-3/4 bg-zinc-700/60 rounded-full" />
-      <div className="h-2.5 w-1/2 bg-zinc-700/40 rounded-full" />
-      <div className="h-2.5 w-full bg-zinc-700/30 rounded-full mt-1" />
-    </div>
-  </div>
-);
-
-const RoomSkeleton = () => (
-  <div className="flex gap-4 rounded-2xl border border-white/5 bg-white/3 p-4 animate-pulse">
-    <div className="h-14 w-14 rounded-xl bg-zinc-800/60 shrink-0" />
-    <div className="flex-1 flex flex-col gap-2">
-      <div className="h-3 w-1/2 bg-zinc-700/60 rounded-full" />
-      <div className="h-2.5 w-3/4 bg-zinc-700/40 rounded-full" />
-      <div className="h-2 w-full bg-zinc-700/30 rounded-full mt-1" />
-    </div>
-  </div>
-);
-
-// ── Empty state ───────────────────────────────────────────────────────────────
-const EmptyState = ({ label }: { label: string }) => (
-  <div className="rounded-2xl border border-white/5 bg-white/3 py-12 flex flex-col items-center gap-3 text-center">
-    <span className="text-4xl">🔍</span>
-    <p className="text-[14px] font-semibold text-zinc-400">No {label} found</p>
-    <p className="text-[12px] text-zinc-600">Try adjusting your filters</p>
-  </div>
-);
-
-// ── Dashboard ─────────────────────────────────────────────────────────────────
 const Dashboard = () => {
   const [view, setView] = useState<"grid" | "list">("grid");
 
@@ -76,27 +48,51 @@ const Dashboard = () => {
     isError: roomsError,
   } = useGetRooms();
 
-  // Apply filters
   const filteredProperties = useFilteredProperties(properties, filters);
-  const filteredRooms       = useFilteredRooms(rooms, filters);
+  const filteredRooms = useFilteredRooms(rooms, filters);
 
-  // Stats from raw data
   const avgRent = rooms?.length
-    ? Math.round(rooms.reduce((s, r) => s + r.pricing.monthlyRent, 0) / rooms.length / 1000)
+    ? Math.round(
+        rooms.reduce((s, r) => s + r.pricing.monthlyRent, 0) /
+          rooms.length /
+          1000,
+      )
     : 0;
 
   return (
     <div className="flex flex-col gap-10 pb-10">
-
       {/* ── Quick stats ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
         {[
-          { icon: <Building2 size={16} />, label: "Properties", value: String(filteredProperties.length || properties?.length || 0), color: "text-orange-400" },
-          { icon: <HomeIcon   size={16} />, label: "Rooms",      value: String(filteredRooms.length || rooms?.length || 0),           color: "text-purple-400" },
-          { icon: <TrendingUp size={16} />, label: "Avg Rent",   value: avgRent ? `₹${avgRent}K` : "—",                              color: "text-green-400"  },
-          { icon: <Users      size={16} />, label: "Roommates",  value: "340+",                                                      color: "text-cyan-400"   },
+          {
+            icon: <Building2 size={16} />,
+            label: "Properties",
+            value: String(filteredProperties.length || properties?.length || 0),
+            color: "text-orange-400",
+          },
+          {
+            icon: <HomeIcon size={16} />,
+            label: "Rooms",
+            value: String(filteredRooms.length || rooms?.length || 0),
+            color: "text-purple-400",
+          },
+          {
+            icon: <TrendingUp size={16} />,
+            label: "Avg Rent",
+            value: avgRent ? `₹${avgRent}K` : "—",
+            color: "text-green-400",
+          },
+          {
+            icon: <Users size={16} />,
+            label: "Roommates",
+            value: "340+",
+            color: "text-cyan-400",
+          },
         ].map(({ icon, label, value, color }) => (
-          <div key={label} className="rounded-2xl border border-white/5 bg-white/3 px-4 py-3 flex items-center gap-3">
+          <div
+            key={label}
+            className="rounded-2xl border border-white/5 bg-white/3 px-4 py-3 flex items-center gap-3"
+          >
             <div className={`${color} opacity-80`}>{icon}</div>
             <div>
               <p className="text-[16px] font-bold text-white">{value}</p>
@@ -121,7 +117,10 @@ const Dashboard = () => {
 
         {/* Property type chips */}
         {filters.propertyTypes.map((pt) => (
-          <span key={pt} className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] text-zinc-300 capitalize">
+          <span
+            key={pt}
+            className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] text-zinc-300 capitalize"
+          >
             {pt}
           </span>
         ))}
@@ -135,7 +134,10 @@ const Dashboard = () => {
 
         {/* Amenity chips */}
         {filters.amenities.map((a) => (
-          <span key={a} className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] text-zinc-300 capitalize">
+          <span
+            key={a}
+            className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] text-zinc-300 capitalize"
+          >
             {a}
           </span>
         ))}
@@ -153,8 +155,12 @@ const Dashboard = () => {
       <section>
         <div className="flex items-end justify-between mb-4">
           <div>
-            <h2 className="text-[18px] font-bold text-white">Available Properties</h2>
-            <p className="text-[12px] text-zinc-500 mt-0.5">Full apartments &amp; shared houses</p>
+            <h2 className="text-[18px] font-bold text-white">
+              Available Properties
+            </h2>
+            <p className="text-[12px] text-zinc-500 mt-0.5">
+              Full apartments &amp; shared houses
+            </p>
           </div>
           <button className="text-[12px] font-semibold text-orange-400 hover:text-orange-300 transition">
             View all →
@@ -171,10 +177,15 @@ const Dashboard = () => {
               className="w-full appearance-none rounded-xl bg-white/5 border border-white/8 pl-4 pr-9 py-2.5 text-[13px] text-zinc-300 outline-none focus:border-orange-500/50 transition cursor-pointer scheme-dark"
             >
               {Object.entries(SORT_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>Sort: {label}</option>
+                <option key={val} value={val}>
+                  Sort: {label}
+                </option>
               ))}
             </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+            <ChevronDown
+              size={14}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+            />
           </div>
 
           <div className="flex items-center gap-1 rounded-xl border border-white/8 bg-white/5 p-1 ml-auto">
@@ -203,22 +214,34 @@ const Dashboard = () => {
           </div>
         )}
 
-        <div className={view === "grid" ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : "flex flex-col gap-3"}>
-          {propertiesLoading
-            ? Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)
-            : filteredProperties.length === 0
-              ? <EmptyState label="properties" />
-              : filteredProperties.map((p) => <PropertyCard key={p._id} p={p} view={view} />)
+        <div
+          className={
+            view === "grid"
+              ? "grid grid-cols-1 sm:grid-cols-2 gap-4"
+              : "flex flex-col gap-3"
           }
+        >
+          {propertiesLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)
+          ) : filteredProperties.length === 0 ? (
+            <EmptyState label="properties" />
+          ) : (
+            filteredProperties.map((p) => (
+              <PropertyCard key={p._id} p={p} view={view} />
+            ))
+          )}
         </div>
       </section>
 
-      {/* ══════════ ROOMS ══════════ */}
       <section>
         <div className="flex items-end justify-between mb-4">
           <div>
-            <h2 className="text-[18px] font-bold text-white">Available Rooms</h2>
-            <p className="text-[12px] text-zinc-500 mt-0.5">Shared &amp; private rooms ready to move in</p>
+            <h2 className="text-[18px] font-bold text-white">
+              Available Rooms
+            </h2>
+            <p className="text-[12px] text-zinc-500 mt-0.5">
+              Shared &amp; private rooms ready to move in
+            </p>
           </div>
           <button className="text-[12px] font-semibold text-orange-400 hover:text-orange-300 transition">
             View all →
@@ -233,13 +256,20 @@ const Dashboard = () => {
             className="w-full appearance-none rounded-xl bg-white/5 border border-white/8 pl-4 pr-9 py-2.5 text-[13px] text-zinc-300 outline-none focus:border-orange-500/50 transition cursor-pointer scheme-dark"
           >
             {Object.entries(SORT_LABELS).map(([val, label]) => (
-              <option key={val} value={val}>Sort: {label}</option>
+              <option key={val} value={val}>
+                Sort: {label}
+              </option>
             ))}
           </select>
-          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+          <ChevronDown
+            size={14}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+          />
         </div>
 
-        <p className="text-[12px] text-zinc-600 mb-3">{filteredRooms.length} rooms</p>
+        <p className="text-[12px] text-zinc-600 mb-3">
+          {filteredRooms.length} rooms
+        </p>
 
         {roomsError && (
           <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-4 text-[13px] text-red-400 mb-4">
@@ -248,15 +278,18 @@ const Dashboard = () => {
         )}
 
         <div className="flex flex-col gap-3">
-          {roomsLoading
-            ? Array.from({ length: 4 }).map((_, i) => <RoomSkeleton key={i} />)
-            : filteredRooms.length === 0
-              ? <EmptyState label="rooms" />
-              : filteredRooms.map((r) => {
-                  const propName = properties?.find((p) => p._id === r.propertyId)?.name;
-                  return <RoomRow key={r._id} r={r} propertyName={propName} />;
-                })
-          }
+          {roomsLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <RoomSkeleton key={i} />)
+          ) : filteredRooms.length === 0 ? (
+            <EmptyState label="rooms" />
+          ) : (
+            filteredRooms.map((r) => {
+              const propName = properties?.find(
+                (p) => p._id === r.propertyId,
+              )?.name;
+              return <RoomRow key={r._id} r={r} propertyName={propName} />;
+            })
+          )}
         </div>
       </section>
     </div>

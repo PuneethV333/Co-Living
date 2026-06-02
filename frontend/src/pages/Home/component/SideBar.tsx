@@ -15,27 +15,40 @@ import { useUiContext } from "../../../hooks/useUiContext";
 import useIsMobile from "../../../hooks/useIsMobile";
 import { useFilters } from "../../../hooks/useFilters";
 
-
-// ── Static data ───────────────────────────────────────────────────────────────
-const CITIES     = ["Bengaluru", "Mumbai", "Delhi", "Pune", "Hyderabad"];
+const CITIES = ["Bengaluru", "Mumbai", "Delhi", "Pune", "Hyderabad"];
 const ROOM_TYPES = [
-  { label: "All",     value: "all"     },
-  { label: "Shared",  value: "shared"  },
+  { label: "All", value: "all" },
+  { label: "Shared", value: "shared" },
   { label: "Private", value: "private" },
 ] as const;
-const PROPERTY_TYPES = ["apartment", "house", "villa", "pg", "studio", "hostel"];
-const AMENITIES      = ["wifi", "ac", "gym", "parking", "washingMachine", "security", "lift", "furnished"];
-const GENDERS        = ["Any", "Male", "Female"];
+const PROPERTY_TYPES = [
+  "apartment",
+  "house",
+  "villa",
+  "pg",
+  "studio",
+  "hostel",
+];
+const AMENITIES = [
+  "wifi",
+  "ac",
+  "gym",
+  "parking",
+  "washingMachine",
+  "security",
+  "lift",
+  "furnished",
+];
+const GENDERS = ["Any", "Male", "Female"];
 
 const NAV_ITEMS = [
-  { icon: Home,      label: "Home",        to: "/home",           badge: null },
-  { icon: Search,    label: "Browse",      to: "/home/browse",    badge: 124  },
-  { icon: Users,     label: "Roommates",   to: "/home/roommates", badge: null },
-  { icon: BookOpen,  label: "My Bookings", to: "/home/bookings",  badge: null },
-  { icon: Heart,     label: "Saved",       to: "/home/saved",     badge: null },
+  { icon: Home, label: "Home", to: "/home", badge: null },
+  { icon: Search, label: "Browse", to: "/home/browse", badge: 124 },
+  { icon: Users, label: "Roommates", to: "/home/roommates", badge: null },
+  { icon: BookOpen, label: "My Bookings", to: "/home/bookings", badge: null },
+  { icon: Heart, label: "Saved", to: "/home/saved", badge: null },
 ];
 
-// ── Chip ──────────────────────────────────────────────────────────────────────
 const Chip = ({
   label,
   active,
@@ -63,14 +76,12 @@ const SectionLabel = ({ label }: { label: string }) => (
   </p>
 );
 
-// ── SideBar ───────────────────────────────────────────────────────────────────
 const SideBar = () => {
   const { menuIsOpen, setMenuIsOpen } = useUiContext();
   const isMobile = useIsMobile();
   const backdropRef = useRef<HTMLDivElement>(null);
   const { filters, setFilter, resetFilters, toggleList } = useFilters();
 
-  // count active filters for badge
   const activeFilterCount = [
     filters.city !== "Bengaluru",
     filters.roomType !== "all",
@@ -83,10 +94,16 @@ const SideBar = () => {
   useEffect(() => {
     if (!backdropRef.current || !isMobile) return;
     if (menuIsOpen) {
-      gsap.to(backdropRef.current, { opacity: 1, duration: 0.3, pointerEvents: "auto" });
+      gsap.to(backdropRef.current, {
+        opacity: 1,
+        duration: 0.3,
+        pointerEvents: "auto",
+      });
     } else {
       gsap.to(backdropRef.current, {
-        opacity: 0, duration: 0.25, pointerEvents: "none",
+        opacity: 0,
+        duration: 0.25,
+        pointerEvents: "none",
       });
     }
   }, [menuIsOpen, isMobile]);
@@ -105,13 +122,14 @@ const SideBar = () => {
       )}
 
       <div className="h-full w-full overflow-y-auto overflow-x-hidden scrollbar-hide px-4 py-5 flex flex-col gap-6">
-
         {/* Mobile header */}
         {isMobile && (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SlidersHorizontal size={16} className="text-orange-400" />
-              <span className="text-[14px] font-semibold text-white">Filters</span>
+              <span className="text-[14px] font-semibold text-white">
+                Filters
+              </span>
               {activeFilterCount > 0 && (
                 <span className="rounded-full bg-orange-500 px-2 py-0.5 text-[11px] font-bold text-white">
                   {activeFilterCount}
@@ -147,7 +165,10 @@ const SideBar = () => {
               >
                 {({ isActive }) => (
                   <>
-                    <Icon size={16} className={isActive ? "text-orange-400" : ""} />
+                    <Icon
+                      size={16}
+                      className={isActive ? "text-orange-400" : ""}
+                    />
                     <span className="flex-1">{label}</span>
                     {badge && (
                       <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[11px] font-bold text-orange-300">
