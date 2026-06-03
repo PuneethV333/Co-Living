@@ -1,18 +1,35 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Search, Bell, Plus, Menu, X } from "lucide-react";
 import { useUiContext } from "../../../hooks/useUiContext";
 import { useGetMe } from "../../../hooks/useAuth";
+import type { notificationType } from "../../../types/notification.types";
+import { useGetNotRepliedNotifications, useReplyNotification } from "../../../hooks/useNotification";
+import { NotificationPopup } from "./NotificationPopup";
 
 const NavBar = () => {
   const { menuIsOpen, setMenuIsOpen } = useUiContext();
   const { data: user } = useGetMe();
   const [searchVal, setSearchVal] = useState("");
-  const [hasNotif] = useState(true);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const bellRef = useRef<HTMLDivElement>(null);
+
+  const { data: newNotifications = [] } = useGetNotRepliedNotifications();
+  const {mutate:reply,isPending } = useReplyNotification()
+
+  const hasNew = newNotifications.length > 0;
+
+  const handleAccept = (n: notificationType) => {
+    reply({toId:n.senderId._id,messageId:n._id,type:"ACCEPT_VISIT_REQUEST"})
+  };
+
+  const handleReject = (n: notificationType) => {
+    reply({toId:n.senderId._id,messageId:n._id,type:"REJECT_VISIT_REQUEST"})
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-[#0A0F1C] border-b border-white/5 flex items-center px-4 gap-3">
-      {/* Hamburger */}
       <button
+        type="button"
         onClick={() => setMenuIsOpen((p) => !p)}
         className="h-9 w-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition shrink-0"
         aria-label="Toggle menu"
@@ -20,7 +37,6 @@ const NavBar = () => {
         {menuIsOpen ? <X size={18} /> : <Menu size={18} />}
       </button>
 
-      {/* Brand */}
       <div className="flex items-center gap-2 shrink-0">
         <div className="h-8 w-8 rounded-xl bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
           <span className="text-sm font-bold text-white">C</span>
@@ -30,7 +46,6 @@ const NavBar = () => {
         </span>
       </div>
 
-      {/* Search */}
       <div className="flex-1 max-w-md mx-auto relative">
         <Search
           size={15}
@@ -44,28 +59,45 @@ const NavBar = () => {
         />
       </div>
 
-      {/* Right actions */}
       <div className="flex items-center gap-2 shrink-0 ml-auto">
-        {/* Notification bell */}
-        <button className="relative h-9 w-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 hover:text-white transition">
-          <Bell size={17} />
-          {hasNotif && (
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-orange-500 ring-2 ring-[#0A0F1C]" />
-          )}
-        </button>
+        <div ref={bellRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setNotifOpen((p) => !p)}
+            className="relative h-9 w-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 hover:text-white transition"
+          >
+            <Bell size={17} />
+            {hasNew && (
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-orange-500 ring-2 ring-[#0A0F1C]" />
+            )}
+          </button>
 
-        {/* List Property — hidden on mobile */}
-        <button className="hidden md:flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[13px] font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
+          {notifOpen && (
+            <NotificationPopup
+              notifications={newNotifications}
+              onClose={() => setNotifOpen(false)}
+              onAccept={handleAccept}
+              onReject={handleReject}
+              isPending = {isPending}
+            />
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="hidden md:flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[13px] font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition"
+        >
           List Property
         </button>
 
-        {/* Find Room CTA */}
-        <button className="flex items-center gap-1.5 rounded-xl bg-orange-500 px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-orange-400 shadow-md shadow-orange-500/20 transition active:scale-95">
+        <button
+          type="button"
+          className="flex items-center gap-1.5 rounded-xl bg-orange-500 px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-orange-400 shadow-md shadow-orange-500/20 transition active:scale-95"
+        >
           <Plus size={14} />
           <span className="hidden sm:inline">Find Room</span>
         </button>
 
-        {/* Avatar */}
         {user?.profilePic ? (
           <img
             src={user.profilePic}

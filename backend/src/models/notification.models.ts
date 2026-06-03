@@ -14,10 +14,18 @@ const notificationSchema = new Schema<INotification>({
     },
     type: {
         type: String,
-        enum:["VISIT_REQUEST","MESSAGE","BOOKING_UPDATE"],
+        enum: ["VISIT_REQUEST", "MESSAGE", "BOOKING_UPDATE", "ACCEPT_VISIT_REQUEST", "REJECT_VISIT_REQUEST"],
         required: true,
     },
-    sent:{
+    sent: {
+        type: Boolean,
+        default: false
+    },
+    replied: {
+        type: Boolean,
+        default: false
+    },
+    requiresAction:{
         type:Boolean,
         default:false
     }

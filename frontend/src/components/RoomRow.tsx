@@ -38,7 +38,7 @@ export const RoomRow = ({ r, propertyName }: { r: RoomType; propertyName?: strin
     <div className={`flex gap-3 md:gap-4 rounded-2xl border border-white/5 bg-white/3 p-3 md:p-4 transition
       ${isFull ? "opacity-50 saturate-50" : "hover:border-white/10 hover:bg-white/5"}`}
     >
-      {/* Icon / Photo */}
+      
       <div className="h-14 w-14 rounded-xl bg-zinc-800/70 flex items-center justify-center overflow-hidden shrink-0">
         {r.photos[0]
           ? <img src={r.photos[0]} alt="room" className="h-full w-full object-cover" />
@@ -48,7 +48,7 @@ export const RoomRow = ({ r, propertyName }: { r: RoomType; propertyName?: strin
         }
       </div>
 
-      {/* Info */}
+      
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap mb-1">
           <Badge label="✓ Verified" variant="verified" />
@@ -71,7 +71,7 @@ export const RoomRow = ({ r, propertyName }: { r: RoomType; propertyName?: strin
           )}
         </div>
 
-        {/* Occupancy bar */}
+        
         <div className="mt-2.5">
           <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
             <div
@@ -89,7 +89,7 @@ export const RoomRow = ({ r, propertyName }: { r: RoomType; propertyName?: strin
         </div>
       </div>
 
-      {/* Price + action */}
+      
       <div className="flex flex-col items-end justify-between shrink-0 gap-2">
         <div className="text-right">
           <p className="text-[15px] font-bold text-white">

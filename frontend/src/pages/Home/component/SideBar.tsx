@@ -122,7 +122,7 @@ const SideBar = () => {
       )}
 
       <div className="h-full w-full overflow-y-auto overflow-x-hidden scrollbar-hide px-4 py-5 flex flex-col gap-6">
-        {/* Mobile header */}
+        
         {isMobile && (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ const SideBar = () => {
           </div>
         )}
 
-        {/* Navigation */}
+        
         <div>
           <SectionLabel label="Navigation" />
           <nav className="flex flex-col gap-1">
@@ -184,7 +184,7 @@ const SideBar = () => {
 
         <div className="h-px bg-white/5" />
 
-        {/* City */}
+        
         <div>
           <SectionLabel label="City" />
           <div className="flex flex-wrap gap-2">
@@ -199,7 +199,7 @@ const SideBar = () => {
           </div>
         </div>
 
-        {/* Room Type */}
+        
         <div>
           <SectionLabel label="Room Type" />
           <div className="flex flex-wrap gap-2">
@@ -214,7 +214,7 @@ const SideBar = () => {
           </div>
         </div>
 
-        {/* Property Type */}
+        
         <div>
           <SectionLabel label="Property Type" />
           <div className="flex flex-wrap gap-2">
@@ -229,7 +229,7 @@ const SideBar = () => {
           </div>
         </div>
 
-        {/* Budget slider */}
+        
         <div>
           <SectionLabel label="Max Budget" />
           <p className="text-[15px] font-bold text-white mb-3">
@@ -251,7 +251,7 @@ const SideBar = () => {
           </div>
         </div>
 
-        {/* Amenities */}
+        
         <div>
           <SectionLabel label="Amenities" />
           <div className="flex flex-wrap gap-2">
@@ -266,7 +266,7 @@ const SideBar = () => {
           </div>
         </div>
 
-        {/* Gender preference */}
+        
         <div>
           <SectionLabel label="Preferred For" />
           <div className="flex flex-wrap gap-2">
@@ -281,7 +281,7 @@ const SideBar = () => {
           </div>
         </div>
 
-        {/* Actions */}
+        
         <div className="flex flex-col gap-2 mt-auto pt-2">
           {activeFilterCount > 0 && (
             <button

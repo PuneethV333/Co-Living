@@ -61,7 +61,6 @@ const Dashboard = () => {
 
   return (
     <div className="flex flex-col gap-10 pb-10">
-      {/* ── Quick stats ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
         {[
           {
@@ -102,20 +101,17 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* ── Active filter chips ── */}
       <div className="flex items-center gap-2 flex-wrap">
         <button className="flex items-center gap-1.5 rounded-full border border-orange-500/40 bg-orange-500/10 px-3.5 py-1.5 text-[12px] font-semibold text-orange-300">
           <MapPin size={12} /> {filters.city}
         </button>
 
-        {/* Room type chip */}
         {filters.roomType !== "all" && (
           <span className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] text-zinc-300 capitalize">
             {filters.roomType}
           </span>
         )}
 
-        {/* Property type chips */}
         {filters.propertyTypes.map((pt) => (
           <span
             key={pt}
@@ -125,14 +121,12 @@ const Dashboard = () => {
           </span>
         ))}
 
-        {/* Budget chip */}
         {filters.maxBudget < 80000 && (
           <span className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] text-zinc-300">
             ≤ ₹{(filters.maxBudget / 1000).toFixed(0)}K
           </span>
         )}
 
-        {/* Amenity chips */}
         {filters.amenities.map((a) => (
           <span
             key={a}
@@ -142,7 +136,6 @@ const Dashboard = () => {
           </span>
         ))}
 
-        {/* Filter icon to open sidebar on mobile */}
         <button
           onClick={() => {}}
           className="ml-auto flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] text-zinc-400 hover:text-white transition md:hidden"
@@ -151,7 +144,6 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* ══════════ PROPERTIES ══════════ */}
       <section>
         <div className="flex items-end justify-between mb-4">
           <div>
@@ -167,7 +159,6 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Controls */}
         <div className="flex items-center gap-3 mb-4">
           <div className="relative flex-1 max-w-xs">
             <select

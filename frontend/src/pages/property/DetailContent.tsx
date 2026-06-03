@@ -30,7 +30,7 @@ import {
   Thermometer,
   Sofa,
 } from "lucide-react";
-import { useCreateNotification } from "../../hooks/useNatification";
+import { useCreateNotification } from "../../hooks/useNotification";
 import { useGetMe } from "../../hooks/useAuth";
 import Spinner from "../../components/Spinner";
 

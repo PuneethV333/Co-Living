@@ -34,7 +34,7 @@ export const useGetMe = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(Auth, (user) => {
       setUid(user?.uid ?? null);
-      setAuthReady(true);      
+      setAuthReady(true);
     });
     return () => unsubscribe();
   }, []);
