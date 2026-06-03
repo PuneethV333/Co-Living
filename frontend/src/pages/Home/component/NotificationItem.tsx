@@ -1,4 +1,13 @@
-import { Calendar, Check, CheckCircle, Clock, MessageSquare, Phone, X, XCircle } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  CheckCircle,
+  Clock,
+  MessageSquare,
+  Phone,
+  X,
+  XCircle,
+} from "lucide-react";
 import type { notificationType } from "../../../types/notification.types";
 import { timeAgo } from "../../../utils/timeAgo";
 

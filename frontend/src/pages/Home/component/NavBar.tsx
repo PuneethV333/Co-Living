@@ -3,7 +3,10 @@ import { Search, Bell, Plus, Menu, X } from "lucide-react";
 import { useUiContext } from "../../../hooks/useUiContext";
 import { useGetMe } from "../../../hooks/useAuth";
 import type { notificationType } from "../../../types/notification.types";
-import { useGetNotRepliedNotifications, useReplyNotification } from "../../../hooks/useNotification";
+import {
+  useGetNotRepliedNotifications,
+  useReplyNotification,
+} from "../../../hooks/useNotification";
 import { NotificationPopup } from "./NotificationPopup";
 
 const NavBar = () => {
@@ -14,16 +17,24 @@ const NavBar = () => {
   const bellRef = useRef<HTMLDivElement>(null);
 
   const { data: newNotifications = [] } = useGetNotRepliedNotifications();
-  const {mutate:reply,isPending } = useReplyNotification()
+  const { mutate: reply, isPending } = useReplyNotification();
 
   const hasNew = newNotifications.length > 0;
 
   const handleAccept = (n: notificationType) => {
-    reply({toId:n.senderId._id,messageId:n._id,type:"ACCEPT_VISIT_REQUEST"})
+    reply({
+      toId: n.senderId._id,
+      messageId: n._id,
+      type: "ACCEPT_VISIT_REQUEST",
+    });
   };
 
   const handleReject = (n: notificationType) => {
-    reply({toId:n.senderId._id,messageId:n._id,type:"REJECT_VISIT_REQUEST"})
+    reply({
+      toId: n.senderId._id,
+      messageId: n._id,
+      type: "REJECT_VISIT_REQUEST",
+    });
   };
 
   return (
@@ -78,7 +89,7 @@ const NavBar = () => {
               onClose={() => setNotifOpen(false)}
               onAccept={handleAccept}
               onReject={handleReject}
-              isPending = {isPending}
+              isPending={isPending}
             />
           )}
         </div>
