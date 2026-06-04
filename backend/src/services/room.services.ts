@@ -3,6 +3,13 @@ import { User } from "../models/user.models";
 import { getVal, setValKey } from "../utils/redis.utils";
 
 export const getRoomDataService = async (firebaseUid: string) => {
+
+    const user = await User.exists({ firebaseUid })
+
+    if (!user) {
+        throw new Error("Unauthorized")
+    }
+
     const cacheKey = "room:all";
 
     const cached = await getVal(cacheKey);
@@ -14,11 +21,7 @@ export const getRoomDataService = async (firebaseUid: string) => {
         };
     }
 
-    const user = await User.findOne({ firebaseUid }).lean()
 
-    if (!user) {
-        throw new Error("Unauthorized")
-    }
 
     const data = await Room.find()
         .sort({

@@ -127,3 +127,8 @@ export const createPropertySchema = z.object({
 })
 
 export type createPropertyType = z.infer<typeof createPropertySchema>
+
+
+export const searchSchema = z.object({
+  query: z.string().min(1),
+});
