@@ -6,35 +6,12 @@ import {
   Maximize2,
   Star,
   Heart,
-  CheckCircle2,
-  Flame,
 } from "lucide-react";
 import type { PropertyType } from "../types/property.types";
 import { getPropertyEmoji } from "../types/property.types";
 import { useNavigate } from "react-router-dom";
+import { Badge } from "./Badge";
 
-const Badge = ({
-  label,
-  variant,
-}: {
-  label: string;
-  variant: "verified" | "hot" | "type";
-}) => {
-  const styles = {
-    verified: "bg-green-500/15 text-green-400 border-green-500/20",
-    hot: "bg-orange-500/15 text-orange-400 border-orange-500/20",
-    type: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-  };
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${styles[variant]}`}
-    >
-      {variant === "verified" && <CheckCircle2 size={9} />}
-      {variant === "hot" && <Flame size={9} />}
-      {label}
-    </span>
-  );
-};
 
 export const PropertyCard = ({
   p,

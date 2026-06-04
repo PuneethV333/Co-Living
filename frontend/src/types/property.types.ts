@@ -8,8 +8,6 @@ export const ownerIdSchema = z.object({
     phoneNumber: z.string(),
 });
 
-
-
 export const propertySchema = z.object({
     _id: z.string(),
     ownerId: ownerIdSchema,
@@ -55,7 +53,6 @@ export const propertiesResponseSchema = z.object({
 
 export type PropertyType = z.infer<typeof propertySchema>;
 export type PropertiesResponse = z.infer<typeof propertiesResponseSchema>;
-
 
 export const roomSchema = z.object({
     _id: z.string(),
@@ -128,3 +125,55 @@ export interface DesktopLayoutProps {
     emoji: string;
     scrollToSection: (id: string) => void;
 }
+
+export const createPropertySchema = z.object({
+    name: z.string(),
+    description: z.string(),
+    cost: z.number().positive(),
+    address: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zipCode: z.string(),
+    lat: z.number(),
+    lng: z.number(),
+    propertyType: z.enum([
+        "apartment",
+        "house",
+        "villa",
+        "studio",
+        "pg",
+        "hostel",
+        "farmhouse",
+        "office",
+        "shop",
+        "warehouse",
+        "land",
+    ]),
+    totalRooms: z.number().optional(),
+    totalBedRooms: z.number().optional(),
+    totalBathrooms: z.number().optional(),
+    builtUpArea: z.number().optional(),
+    amenities: z.array(z.enum([
+        "wifi",
+        "parking",
+        "ac",
+        "tv",
+        "kitchen",
+        "washingMachine",
+        "powerBackup",
+        "lift",
+        "gym",
+        "swimmingPool",
+        "security",
+        "petFriendly",
+        "balcony",
+        "garden",
+        "waterSupply",
+        "geyser",
+        "furnished",
+    ])),
+    rules: z.string().array().optional(),
+    photos: z.url().array().optional(),
+})
+
+export type createPropertyType = z.infer<typeof createPropertySchema>

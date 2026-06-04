@@ -8,7 +8,7 @@ import { getEmbeddingServices } from "./ai.services";
 export const getPropertyDataService = async (
     firebaseUid: string
 ) => {
-    
+
     const user = await User.exists({
         firebaseUid,
     });
@@ -16,7 +16,7 @@ export const getPropertyDataService = async (
     if (!user) {
         throw new Error("unauthorized");
     }
-    
+
     const cacheKey = "properties:active";
 
     const cached = await getVal(cacheKey);
@@ -28,7 +28,7 @@ export const getPropertyDataService = async (
         };
     }
 
-    
+
 
     const data = await Property.find({
         isActive: true,
@@ -48,13 +48,13 @@ export const getPropertyDataService = async (
 };
 
 export const getPropertyDetailService = async (firebaseUid: string, propertyId: string) => {
-    const user = await User.exists({firebaseUid});
-    
-    if(!user){
+    const user = await User.exists({ firebaseUid });
+
+    if (!user) {
         throw new Error("Unauthorized")
     }
-    
-    
+
+
     const cacheKey = `property:${propertyId}:${firebaseUid}`
     const cached = await getVal(cacheKey);
     if (cached) {
@@ -106,6 +106,8 @@ export const createPropertyService = async (firebaseUid: string, prop: createPro
         photos: prop.photos
     })
 
+    await property.populate("ownerId", "name verified phoneNumber")
+
 
     const searchText = `
 ${property.name}
@@ -149,40 +151,45 @@ ${property.amenities.join(" ")}
 };
 
 export const searchPropertyService = async (
-    firebaseUid: string,
-    searchQuery: string
+  firebaseUid: string,
+  searchQuery: string
 ) => {
-    const user = await User.exists({ firebaseUid });
+  const user = await User.exists({ firebaseUid });
 
-    if (!user) {
-        throw new Error("Unauthorized");
-    }
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
 
-    const embedding = await getEmbeddingServices(searchQuery);
+  const embedding = await getEmbeddingServices(searchQuery);
 
-    const results = await qdrantClient.search("properties", {
-        vector: embedding,
-        limit: 20,
-    });
+  const results = await qdrantClient.search("properties", {
+    vector: embedding,
+    limit: 20,
+  });
 
-    const propertyIds = results
-        .map(r => r.payload?.propertyId)
-        .filter((id): id is string => typeof id === "string");
+  const propertyIds = results
+    .map(r => r.payload?.propertyId)
+    .filter((id): id is string => typeof id === "string");
 
-    if (propertyIds.length === 0) {
-        return [];
-    }
+  if (propertyIds.length === 0) {
+    return [];
+  }
 
-    const properties = await Property.find({
-        _id: { $in: propertyIds },
-        isActive: true,
-    }).lean();
+  const properties = await Property.find({
+    _id: { $in: propertyIds },
+    isActive: true,
+  })
+    .populate("ownerId", "name profilePic")
+    .lean();
 
-    const propertyMap = new Map(
-        properties.map(p => [p._id.toString(), p])
+  const propertyMap = new Map(
+    properties.map(p => [p._id.toString(), p])
+  );
+
+  return propertyIds
+    .map(id => propertyMap.get(id))
+    .filter(
+      (property): property is typeof properties[number] =>
+        property !== undefined
     );
-
-    return propertyIds
-        .map(id => propertyMap.get(id))
-        .filter(Boolean);
 };
