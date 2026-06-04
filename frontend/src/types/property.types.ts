@@ -29,6 +29,7 @@ export const propertySchema = z.object({
         "apartment", "house", "villa", "studio", "pg",
         "hostel", "farmhouse", "office", "shop", "warehouse", "land",
     ]),
+    cost: z.number(),
     totalRooms: z.number(),
     totalBedRooms: z.number(),
     totalBathrooms: z.number(),

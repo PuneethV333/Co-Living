@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { getError } from "../utils/error.utils"
-import { getPropertyDataService, getPropertyDetailService } from "../services/property.services"
+import { createPropertyService, getPropertyDataService, getPropertyDetailService } from "../services/property.services"
+import { createPropertySchema } from "../types/property/property.types"
 
 export const getPropertyData = async (req: Request, res: Response) => {
     try {
@@ -22,6 +23,7 @@ export const getPropertyData = async (req: Request, res: Response) => {
         res.status(500).json(getError(err))
     }
 }
+
 export const getPropertyDetails = async (req: Request, res: Response) => {
     try {
         const firebaseUid = req.user?.firebaseUid
@@ -31,15 +33,15 @@ export const getPropertyDetails = async (req: Request, res: Response) => {
                 message: "unauthorized"
             })
         }
-        
+
         const propertyId = req.params.id
-        if(!propertyId){
+        if (!propertyId) {
             return res.status(400).json({
                 message: "Data not provided"
             })
         }
 
-        const result = await getPropertyDetailService(firebaseUid,Array.isArray(propertyId)?propertyId[0]:propertyId)
+        const result = await getPropertyDetailService(firebaseUid, Array.isArray(propertyId) ? propertyId[0] : propertyId)
 
         return res.status(200).json({
             data: result.data,
@@ -47,5 +49,36 @@ export const getPropertyDetails = async (req: Request, res: Response) => {
         })
     } catch (err) {
         res.status(500).json(getError(err))
+    }
+}
+
+export const createProperty = async (req: Request, res: Response) => {
+    try {
+        const firebaseUid = req.user?.firebaseUid;
+
+        if (!firebaseUid) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+        const parsed = createPropertySchema.safeParse(req.body)
+
+        if (!parsed.success) {
+            return res.status(400).json({
+                message: "Schema does'nt match",
+                error: parsed.error.message
+            })
+        }
+
+        const result = await createPropertyService(firebaseUid, parsed.data)
+
+        return res.status(200).json({
+            message: "Create New Property",
+            data: result
+        })
+
+    } catch (err) {
+        return res.status(500).json(getError(err))
     }
 }

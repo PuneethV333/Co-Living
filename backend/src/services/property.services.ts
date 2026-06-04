@@ -1,6 +1,9 @@
+import { qdrantClient } from "../config/qdrant.config";
 import { Property } from "../models/property.models"
 import { User } from "../models/user.models"
-import { getVal, setValKey } from "../utils/redis.utils"
+import { createPropertyType } from "../types/property/property.types";
+import { clearCache, getVal, setValKey } from "../utils/redis.utils"
+import { getEmbeddingServices } from "./ai.services";
 
 export const getPropertyDataService = async (
     firebaseUid: string
@@ -42,21 +45,102 @@ export const getPropertyDataService = async (
 };
 
 
-export const getPropertyDetailService = async (firebaseUid:string,propertyId:string) => {
+export const getPropertyDetailService = async (firebaseUid: string, propertyId: string) => {
     const cacheKey = `property:${propertyId}:${firebaseUid}`
     const cached = await getVal(cacheKey);
-    if(cached){
-        return {data:JSON.parse(cached),source:"redis"}
+    if (cached) {
+        return { data: JSON.parse(cached), source: "redis" }
     }
-    
-    const user = await User.findOne({firebaseUid}).lean()
-    
-    if(!user){
+
+    const user = await User.findOne({ firebaseUid }).lean()
+
+    if (!user) {
         throw new Error("Unauthorized")
     }
-    
-    const data = await Property.findOne({_id:propertyId}).populate("ownerId","name phoneNumber verified").lean()
-    
-    await setValKey(cacheKey,JSON.stringify(data))
-    return {data,source:"db"}
+
+    const data = await Property.findOne({ _id: propertyId }).populate("ownerId", "name phoneNumber verified").lean()
+
+    await setValKey(cacheKey, JSON.stringify(data))
+    return { data, source: "db" }
+}
+
+export const createPropertyService = async (firebaseUid: string, prop: createPropertyType) => {
+    const user = await User.findOne({
+        firebaseUid
+    }).select("_id role")
+
+    if (!user) {
+        throw new Error("Unauthorized")
+    }
+
+    if (user.role === "Tenant") {
+        throw new Error("Unauthorized,tenants cant create property for role")
+    }
+
+    const property = await Property.create({
+        ownerId: user._id,
+        name: prop.name,
+        description: prop.description,
+        location: {
+            address: prop.address,
+            city: prop.city,
+            state: prop.state,
+            zipCode: prop.zipCode,
+            coordinates: {
+                lat: prop.lat,
+                lng: prop.lng,
+            }
+        },
+        propertyType: prop.propertyType,
+        cost: prop.cost,
+        totalRooms: prop.totalRooms,
+        totalBedRooms: prop.totalBedRooms,
+        totalBathrooms: prop.totalBathrooms,
+
+        builtUpArea: prop.builtUpArea,
+        amenities: prop.amenities,
+        rules: prop.rules,
+        photos: prop.photos
+    })
+
+
+    const searchText = `
+${property.name}
+${property.description}
+${property.propertyType}
+${property.location.address}
+${property.location.city}
+${property.location.state}
+${property.location.zipCode}
+Rent ${property.cost}
+Rules ${prop.rules?.join("")}
+${property.totalRooms} rooms
+${property.totalBedRooms} bedrooms
+${property.totalBathrooms} bathrooms
+${property.amenities.join(" ")}
+`;
+
+    const embedding = await getEmbeddingServices(searchText)
+
+
+    await qdrantClient.upsert("properties", {
+        points: [
+            {
+                id: property._id.toString(),
+                vector: embedding,
+                payload: {
+                    propertyId: property._id.toString(),
+                    city: property.location.city,
+                    state: property.location.state,
+                    lat: property.location.coordinates.lat,
+                    lng: property.location.coordinates.lng,
+                    propertyType: property.propertyType,
+                    cost: property.cost,
+                },
+            }
+        ]
+    })
+
+    await clearCache('properties:active')
+    return property;
 }

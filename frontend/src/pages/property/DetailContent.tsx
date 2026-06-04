@@ -342,7 +342,7 @@ export const DetailContent = ({
                   type: "VISIT_REQUEST",
                 });
               }}
-              disabled = {creatingNotification}
+              disabled={creatingNotification}
             >
               <Phone size={14} /> Request a Visit
             </button>

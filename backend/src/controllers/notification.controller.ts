@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createNotificationSchema, replyToMessageReqBody,  } from "../types/user/notification.types";
+import { createNotificationSchema, replyToMessageReqBody, } from "../types/user/notification.types";
 import { createNotificationService, getAllNotificationService, getNotificationService, getNotRepliedMessageService, replyToMessageService } from "../services/notification.services";
 import { getError } from "../utils/error.utils";
 
@@ -112,7 +112,7 @@ export const replyToMessage = async (req: Request, res: Response) => {
             })
         }
 
-        const result = await replyToMessageService({firebaseUid,...parsed.data})
+        const result = await replyToMessageService({ firebaseUid, ...parsed.data })
 
         return res.status(200).json({
             success: result

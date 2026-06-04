@@ -9,7 +9,7 @@ export interface INotification {
     type: typesOfMessage;
     sent: boolean;
     replied: boolean;
-    requiresAction:boolean;
+    requiresAction: boolean;
 }
 
 export const createNotificationSchema = z.object({

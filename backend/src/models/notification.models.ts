@@ -25,9 +25,9 @@ const notificationSchema = new Schema<INotification>({
         type: Boolean,
         default: false
     },
-    requiresAction:{
-        type:Boolean,
-        default:false
+    requiresAction: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true })
 
