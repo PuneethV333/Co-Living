@@ -12,6 +12,7 @@ import { authRouter } from "./routes/auth.router";
 import { propertyRouter } from "./routes/property.router";
 import { roomRouter } from "./routes/room.router";
 import { notificationRouter } from "./routes/notification.router";
+import { userPropertyPreferenceRouter } from "./routes/userPropertyPreference.router";
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/property", propertyRouter);
 app.use("/api/room", roomRouter);
 app.use("/api/notification", notificationRouter);
+app.use("/api/propertyPreference", userPropertyPreferenceRouter);
 
 app.get("/test", (_: Request, res: Response) => {
     res.send("Server is running");
