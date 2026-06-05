@@ -177,3 +177,12 @@ export const createPropertySchema = z.object({
 })
 
 export type createPropertyType = z.infer<typeof createPropertySchema>
+
+export type PropertyTypeEnum =
+  | "apartment" | "house" | "villa" | "studio" | "pg"
+  | "hostel" | "farmhouse" | "office" | "shop" | "warehouse" | "land";
+
+export type AmenityEnum =
+  | "wifi" | "parking" | "ac" | "tv" | "kitchen" | "washingMachine"
+  | "powerBackup" | "lift" | "gym" | "swimmingPool" | "security"
+  | "petFriendly" | "balcony" | "garden" | "waterSupply" | "geyser" | "furnished";

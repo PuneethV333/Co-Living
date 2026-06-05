@@ -14,6 +14,8 @@ const Login = lazy(() => import("./pages/Login/Login"));
 const OnBoarding = lazy(() => import("./pages/OnBoarding/OnBoarding"));
 const Dashboard = lazy(() => import("./pages/Home/subPages/Dashboard"));
 const PropertyDetail = lazy(() => import("./pages/property/PropertyDetail"));
+const Browse = lazy(() => import("./pages/property/Browse"));
+const ListProperty = lazy(() => import("./pages/property/ListProperty"));
 
 const getNotificationMessage = (notification: notificationType) => {
   switch (notification.type) {
@@ -136,6 +138,8 @@ const App = () => {
           >
             <Route index element={<Dashboard />} />
             <Route path="property/details/:id" element={<PropertyDetail />} />
+            <Route path="browse" element={<Browse />} />
+            <Route path="create/Property" element={<ListProperty />} />
           </Route>
         </Routes>
       </Suspense>

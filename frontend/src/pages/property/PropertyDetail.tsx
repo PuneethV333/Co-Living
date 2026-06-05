@@ -23,10 +23,6 @@ const PROPERTY_EMOJI: Record<string, string> = {
 };
 
 
-
-
-
-
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();

@@ -8,8 +8,10 @@ import {
   useReplyNotification,
 } from "../../../hooks/useNotification";
 import { NotificationPopup } from "./NotificationPopup";
+import { useNavigate } from "react-router-dom";
 
 const NavBar = () => {
+    const navigate = useNavigate()
   const { menuIsOpen, setMenuIsOpen } = useUiContext();
   const { data: user } = useGetMe();
   const [searchVal, setSearchVal] = useState("");
@@ -97,6 +99,7 @@ const NavBar = () => {
         <button
           type="button"
           className="hidden md:flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[13px] font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition"
+          onClick={() => navigate("/home/create/Property")}
         >
           List Property
         </button>

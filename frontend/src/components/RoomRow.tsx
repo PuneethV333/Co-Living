@@ -1,27 +1,9 @@
-import { Bed, Maximize2, Users, CheckCircle2 } from "lucide-react";
+import { Bed, Maximize2, Users } from "lucide-react";
 import type { RoomType } from "../types/property.types";
+import { Badge } from "./Badge";
+// import { useGetMe } from "../hooks/useAuth";
 
-const Badge = ({
-  label,
-  variant,
-}: {
-  label: string;
-  variant: "verified" | "shared" | "private" | "last" | "full";
-}) => {
-  const styles = {
-    verified: "bg-green-500/15 text-green-400 border-green-500/20",
-    shared:   "bg-purple-500/15 text-purple-400 border-purple-500/20",
-    private:  "bg-cyan-500/15 text-cyan-400 border-cyan-500/20",
-    last:     "bg-red-500/15 text-red-400 border-red-500/20",
-    full:     "bg-zinc-500/15 text-zinc-400 border-zinc-500/20",
-  };
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${styles[variant]}`}>
-      {variant === "verified" && <CheckCircle2 size={9} />}
-      {label}
-    </span>
-  );
-};
+
 
 export const RoomRow = ({ r, propertyName }: { r: RoomType; propertyName?: string }) => {
   const { roomDetails, pricing, availability } = r;
@@ -110,6 +92,14 @@ export const RoomRow = ({ r, propertyName }: { r: RoomType; propertyName?: strin
               ? "bg-zinc-800 text-zinc-600 cursor-not-allowed border border-white/5"
               : "bg-orange-500 text-white hover:bg-orange-400 shadow-md shadow-orange-500/20"
             }`}
+            
+            // onClick={() => {
+            //     createNotification({
+            //       senderId: me._id,
+            //       receiverId: property.ownerId._id,
+            //       type: "VISIT_REQUEST",
+            //     });
+            //   }}
         >
           {isFull ? "WaitList" : "Request"}
         </button>

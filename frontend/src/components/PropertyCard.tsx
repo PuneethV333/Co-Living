@@ -150,7 +150,7 @@ export const PropertyCard = ({
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[16px] font-bold text-white">
-              ₹{(p.rating * 3000).toLocaleString("en-IN")}
+              ₹{(p.cost)}
             </span>
             <span className="text-[11px] text-zinc-600">/mo</span>
           </div>
