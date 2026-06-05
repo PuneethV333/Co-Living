@@ -117,12 +117,19 @@ ${property.location.address}
 ${property.location.city}
 ${property.location.state}
 ${property.location.zipCode}
+
 Rent ${property.cost}
-Rules ${prop.rules?.join("")}
+Built up area ${property.builtUpArea}
+
 ${property.totalRooms} rooms
 ${property.totalBedRooms} bedrooms
 ${property.totalBathrooms} bathrooms
+
+Amenities:
 ${property.amenities.join(" ")}
+
+Rules:
+${property.rules.join(" ")}
 `;
 
     const embedding = await getEmbeddingServices(searchText)
@@ -151,45 +158,45 @@ ${property.amenities.join(" ")}
 };
 
 export const searchPropertyService = async (
-  firebaseUid: string,
-  searchQuery: string
+    firebaseUid: string,
+    searchQuery: string
 ) => {
-  const user = await User.exists({ firebaseUid });
+    const user = await User.exists({ firebaseUid });
 
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
+    if (!user) {
+        throw new Error("Unauthorized");
+    }
 
-  const embedding = await getEmbeddingServices(searchQuery);
+    const embedding = await getEmbeddingServices(searchQuery);
 
-  const results = await qdrantClient.search("properties", {
-    vector: embedding,
-    limit: 20,
-  });
+    const results = await qdrantClient.search("properties", {
+        vector: embedding,
+        limit: 20,
+    });
 
-  const propertyIds = results
-    .map(r => r.payload?.propertyId)
-    .filter((id): id is string => typeof id === "string");
+    const propertyIds = results
+        .map(r => r.payload?.propertyId)
+        .filter((id): id is string => typeof id === "string");
 
-  if (propertyIds.length === 0) {
-    return [];
-  }
+    if (propertyIds.length === 0) {
+        return [];
+    }
 
-  const properties = await Property.find({
-    _id: { $in: propertyIds },
-    isActive: true,
-  })
-    .populate("ownerId", "name profilePic")
-    .lean();
+    const properties = await Property.find({
+        _id: { $in: propertyIds },
+        isActive: true,
+    })
+        .populate("ownerId", "name profilePic")
+        .lean();
 
-  const propertyMap = new Map(
-    properties.map(p => [p._id.toString(), p])
-  );
-
-  return propertyIds
-    .map(id => propertyMap.get(id))
-    .filter(
-      (property): property is typeof properties[number] =>
-        property !== undefined
+    const propertyMap = new Map(
+        properties.map(p => [p._id.toString(), p])
     );
+
+    return propertyIds
+        .map(id => propertyMap.get(id))
+        .filter(
+            (property): property is typeof properties[number] =>
+                property !== undefined
+        );
 };
