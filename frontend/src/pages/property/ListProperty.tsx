@@ -9,27 +9,12 @@ import {
     MapPin,
     Building2,
     Home,
-    Wifi,
-    Car,
-    Wind,
-    Tv,
-    UtensilsCrossed,
-    WashingMachine,
-    Zap,
-    ArrowUpDown,
-    Dumbbell,
-    Waves,
-    Shield,
-    PawPrint,
-    TreePine,
-    Droplets,
-    Thermometer,
-    Sofa,
     Upload,
     Trash2,
     Save,
     Eye,
     Maximize2,
+    Droplets,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -43,53 +28,17 @@ import type {
 import { StepBar } from "../../components/StepVar";
 import { Field } from "../../components/Field";
 import { Counter } from "../../components/Counter";
+import { PROPERTY_TYPES } from "../../constants/property.constants";
+import { AMENITIES } from "../../constants/amenities.constants";
 
 
 
 
 const TOTAL_STEPS = 6;
 
-const PROPERTY_TYPES: {
-    value: PropertyTypeEnum;
-    label: string;
-    emoji: string;
-}[] = [
-        { value: "apartment", label: "Apartment", emoji: "🏢" },
-        { value: "house", label: "House", emoji: "🏠" },
-        { value: "villa", label: "Villa", emoji: "🏡" },
-        { value: "studio", label: "Studio", emoji: "🏙️" },
-        { value: "pg", label: "PG", emoji: "🏘️" },
-        { value: "hostel", label: "Hostel", emoji: "🏨" },
-        { value: "farmhouse", label: "Farmhouse", emoji: "🌾" },
-    ];
 
-const AMENITIES: {
-    value: AmenityEnum;
-    label: string;
-    icon: React.ReactNode;
-}[] = [
-        { value: "wifi", label: "Fast WiFi", icon: <Wifi size={20} /> },
-        { value: "parking", label: "Parking", icon: <Car size={20} /> },
-        { value: "ac", label: "Air Conditioning", icon: <Wind size={20} /> },
-        { value: "tv", label: "Smart TV", icon: <Tv size={20} /> },
-        { value: "kitchen", label: "Kitchen", icon: <UtensilsCrossed size={20} /> },
-        { value: "swimmingPool", label: "Pool", icon: <Waves size={20} /> },
-        { value: "gym", label: "Gym", icon: <Dumbbell size={20} /> },
-        {
-            value: "washingMachine",
-            label: "Laundry",
-            icon: <WashingMachine size={20} />,
-        },
-        { value: "powerBackup", label: "Power Backup", icon: <Zap size={20} /> },
-        { value: "lift", label: "Lift", icon: <ArrowUpDown size={20} /> },
-        { value: "security", label: "Security", icon: <Shield size={20} /> },
-        { value: "petFriendly", label: "Pet Friendly", icon: <PawPrint size={20} /> },
-        { value: "balcony", label: "Balcony", icon: <Home size={20} /> },
-        { value: "garden", label: "Garden", icon: <TreePine size={20} /> },
-        { value: "waterSupply", label: "Water Supply", icon: <Droplets size={20} /> },
-        { value: "geyser", label: "Geyser", icon: <Thermometer size={20} /> },
-        { value: "furnished", label: "Furnished", icon: <Sofa size={20} /> },
-    ];
+
+
 
 const DEFAULT_RULES = ["No smoking", "No alcohol", "No loud music"];
 
