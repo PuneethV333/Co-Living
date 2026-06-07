@@ -1,7 +1,9 @@
+import { qdrantClient } from "../config/qdrant.config";
 import { User } from "../models/user.models";
 import { PropertyPreference } from "../models/userPropertyPreference.models";
 import { createUserPropertyPreferencePayloadType } from "../types/property/userPropertyPreference.types";
 import { getVal, setValKey } from "../utils/redis.utils";
+import { getEmbeddingServices } from "./ai.services";
 
 export const createUserPropertyPreferenceService = async (firebaseUid: string, payload: createUserPropertyPreferencePayloadType) => {
     const user = await User.exists({ firebaseUid });
@@ -10,7 +12,7 @@ export const createUserPropertyPreferenceService = async (firebaseUid: string, p
         throw new Error("Unauthorized")
     }
 
-    const newUserPropertyPreference = PropertyPreference.create({
+    const pref = await PropertyPreference.create({
         userId: user._id,
         budget: {
             max: payload.max,
@@ -34,7 +36,45 @@ export const createUserPropertyPreferenceService = async (firebaseUid: string, p
         }
     })
 
-    return newUserPropertyPreference;
+    const roommateProfile = `
+Gender: ${pref.genderPreference}
+
+Work mode: ${pref.workMode}
+
+Food preference: ${pref.foodPreference}
+
+Occupancy preference: ${pref.occupancyPreference}
+
+Private room: ${pref.roomPreference.privateRoom}
+
+Shared room: ${pref.roomPreference.sharedRoom}
+
+Pet friendly: ${pref.petFriendly}
+
+Preferred locations:
+${pref.preferredLocations.join(", ")}
+`;
+
+    const embedding = await getEmbeddingServices(roommateProfile)
+
+    await qdrantClient.upsert("roomMate", {
+        points: [
+            {
+                id: user._id.toString(),
+                vector: embedding,
+                payload: {
+                    profileId: pref._id.toString(),
+                    budget: pref.budget,
+                    gender: pref.genderPreference,
+                    Occupancy: pref.occupancyPreference,
+                    location: pref.preferredLocations,
+                    propertyTypes: pref.propertyTypes
+                },
+            }
+        ]
+    })
+
+    return pref;
 }
 
 export const getUserPropertyPreferenceService = async (firebaseUid: string) => {
@@ -66,7 +106,7 @@ export const updateUserPropertyPreferenceService = async (firebaseUid: string, p
         throw new Error("Unauthorized")
     }
 
-    const updatedUserPropertyPreference = PropertyPreference.findOneAndUpdate({ userId: user._id }, {
+    const pref = await PropertyPreference.findOneAndUpdate({ userId: user._id }, {
         userId: user._id,
         budget: {
             max: payload.max,
@@ -89,14 +129,53 @@ export const updateUserPropertyPreferenceService = async (firebaseUid: string, p
             parkingRequired: payload.parkingRequired,
         }
     }, { returnDocument: "after" })
-    
-    if(!updatedUserPropertyPreference){
+
+    if (!pref) {
         throw new Error("Failed to updated Preferences")
     }
 
+    const roommateProfile = `
+Gender: ${pref.genderPreference}
+
+Work mode: ${pref.workMode}
+
+Food preference: ${pref.foodPreference}
+
+Occupancy preference: ${pref.occupancyPreference}
+
+Private room: ${pref.roomPreference.privateRoom}
+
+Shared room: ${pref.roomPreference.sharedRoom}
+
+Pet friendly: ${pref.petFriendly}
+
+Preferred locations:
+${pref.preferredLocations.join(", ")}
+`;
+
+    const embedding = await getEmbeddingServices(roommateProfile)
+
+    await qdrantClient.upsert("roomMate", {
+        points: [
+            {
+                id: user._id.toString(),
+                vector: embedding,
+                payload: {
+                    profileId: pref._id.toString(),
+                    budget: pref.budget,
+                    gender: pref.genderPreference,
+                    Occupancy: pref.occupancyPreference,
+                    location: pref.preferredLocations,
+                    propertyTypes: pref.propertyTypes
+                },
+            }
+        ]
+    })
+
     const cacheKey = `PropertyPreference:${firebaseUid}`
 
-    await setValKey(cacheKey, JSON.stringify(updatedUserPropertyPreference))
+    await setValKey(cacheKey, JSON.stringify(pref))
 
-    return updatedUserPropertyPreference;
+    return pref;
 }
+

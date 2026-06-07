@@ -12,5 +12,7 @@ export const envSchema = z.object({
     TWILIO_VERIFY_SERVICE_SID: z.string(),
     QDRANT_URL: z.string(),
     QDRANT_API_KEY: z.string(),
-    OPENAI_API_KEY:z.string()
+    OPENAI_API_KEY:z.string(),
+    OLLAMA_URL:z.string(),
+    GENAI_API_KEY:z.string()
 });

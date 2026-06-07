@@ -34,7 +34,9 @@ if (!envValidation.success) {
                 "TWILIO_VERIFY_SERVICE_SID",
                 "QDRANT_URL",
                 "QDRANT_API_KEY",
-                "OPENAI_API_KEY"
+                "OPENAI_API_KEY",
+                "OLLAMA_URL",
+                "GENAI_API_KEY"
             ].includes(key)
         ) {
             console.error(`  ${key}: ${value ? "✅" : "❌"}`);
@@ -58,7 +60,9 @@ export const config = {
     serviceSid: envValidation.data.TWILIO_VERIFY_SERVICE_SID,
     qdrantApiKey: envValidation.data.QDRANT_API_KEY,
     qdrantUrl: envValidation.data.QDRANT_URL,
-    openAiApiKey:envValidation.data.OPENAI_API_KEY
+    openAiApiKey: envValidation.data.OPENAI_API_KEY,
+    ollamUrl: envValidation.data.OLLAMA_URL,
+    genAiApiKey: envValidation.data.GENAI_API_KEY,
 } as const;
 
 console.log("✅ Configuration loaded successfully");

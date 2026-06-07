@@ -1,14 +1,38 @@
-import { aiClient } from "../config/openAi.config"
+// import axios from "axios";
+// import { config } from "../config/data.config";
 
-export const getEmbeddingServices = async (text: string): Promise<number[]> => {
-    try {
-        const res = await aiClient.embeddings.create({
-            model: "text-embedding-3-small",
-            input: text
-        });
-        return res.data[0].embedding
-    } catch (err) {
-        console.error(err);
-        throw err
-    }
-}
+import { aiClient } from "../config/genAi.config";
+
+// export const getEmbeddingServices = async (
+//     text: string
+// ): Promise<number[]> => {
+//     try {
+//         const response = await axios.post(
+//             config.ollamUrl,
+//             {
+//                 model: "nomic-embed-text",
+//                 prompt: text,
+//             }
+//         );
+
+//         return response.data.embedding;
+//     } catch (err: any) {
+//         console.error(
+//             "Embedding Error:",
+//             err.response?.data || err.message
+//         );
+//         throw err;
+//     }
+// };
+
+
+export const getEmbeddingServices = async (
+  text: string
+): Promise<number[]> => {
+  const response = await aiClient.models.embedContent({
+    model: "gemini-embedding-001",
+    contents: text,
+  });
+
+  return response.embeddings![0].values!;
+};
