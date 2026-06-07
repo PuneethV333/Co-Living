@@ -1,15 +1,23 @@
+import { config } from "../config/data.config";
 import { qdrantClient } from "../config/qdrant.config";
+import { nameSpace } from "../constants/nameSpace";
 import { User } from "../models/user.models";
 import { PropertyPreference } from "../models/userPropertyPreference.models";
 import { createUserPropertyPreferencePayloadType } from "../types/property/userPropertyPreference.types";
 import { getVal, setValKey } from "../utils/redis.utils";
 import { getEmbeddingServices } from "./ai.services";
+import { v5 as uuidv5 } from "uuid";
 
-export const createUserPropertyPreferenceService = async (firebaseUid: string, payload: createUserPropertyPreferencePayloadType) => {
+
+
+export const createUserPropertyPreferenceService = async (
+    firebaseUid: string,
+    payload: createUserPropertyPreferencePayloadType
+) => {
     const user = await User.exists({ firebaseUid });
 
     if (!user) {
-        throw new Error("Unauthorized")
+        throw new Error("Unauthorized");
     }
 
     const pref = await PropertyPreference.create({
@@ -33,49 +41,45 @@ export const createUserPropertyPreferenceService = async (firebaseUid: string, p
         transportNeeds: {
             metroNearby: payload.metroNearby,
             parkingRequired: payload.parkingRequired,
-        }
-    })
+        },
+    });
 
     const roommateProfile = `
 Gender: ${pref.genderPreference}
-
 Work mode: ${pref.workMode}
-
 Food preference: ${pref.foodPreference}
-
 Occupancy preference: ${pref.occupancyPreference}
-
 Private room: ${pref.roomPreference.privateRoom}
-
 Shared room: ${pref.roomPreference.sharedRoom}
-
 Pet friendly: ${pref.petFriendly}
-
-Preferred locations:
-${pref.preferredLocations.join(", ")}
+Preferred locations: ${pref.preferredLocations.join(", ")}
 `;
 
-    const embedding = await getEmbeddingServices(roommateProfile)
+    const embedding = await getEmbeddingServices(roommateProfile);
+
+    const pointId = uuidv5(user._id.toString(), nameSpace);
 
     await qdrantClient.upsert("roomMate", {
         points: [
             {
-                id: user._id.toString(),
+                id: pointId,
                 vector: embedding,
                 payload: {
+                    userId: user._id.toString(),
                     profileId: pref._id.toString(),
                     budget: pref.budget,
                     gender: pref.genderPreference,
-                    Occupancy: pref.occupancyPreference,
+                    occupancy: pref.occupancyPreference,
                     location: pref.preferredLocations,
-                    propertyTypes: pref.propertyTypes
+                    propertyTypes: pref.propertyTypes,
                 },
-            }
-        ]
-    })
+            },
+        ],
+    });
 
     return pref;
-}
+};
+
 
 export const getUserPropertyPreferenceService = async (firebaseUid: string) => {
     const user = await User.exists({ firebaseUid });
@@ -136,45 +140,39 @@ export const updateUserPropertyPreferenceService = async (firebaseUid: string, p
 
     const roommateProfile = `
 Gender: ${pref.genderPreference}
-
 Work mode: ${pref.workMode}
-
 Food preference: ${pref.foodPreference}
-
 Occupancy preference: ${pref.occupancyPreference}
-
 Private room: ${pref.roomPreference.privateRoom}
-
 Shared room: ${pref.roomPreference.sharedRoom}
-
 Pet friendly: ${pref.petFriendly}
-
-Preferred locations:
-${pref.preferredLocations.join(", ")}
+Preferred locations: ${pref.preferredLocations.join(", ")}
 `;
 
-    const embedding = await getEmbeddingServices(roommateProfile)
+    const embedding = await getEmbeddingServices(roommateProfile);
+
+    const pointId = uuidv5(user._id.toString(), nameSpace);
 
     await qdrantClient.upsert("roomMate", {
         points: [
             {
-                id: user._id.toString(),
+                id: pointId,
                 vector: embedding,
                 payload: {
+                    userId: user._id.toString(),
                     profileId: pref._id.toString(),
                     budget: pref.budget,
                     gender: pref.genderPreference,
-                    Occupancy: pref.occupancyPreference,
+                    occupancy: pref.occupancyPreference,
                     location: pref.preferredLocations,
                     propertyTypes: pref.propertyTypes
                 },
             }
         ]
-    })
+    });
 
-    const cacheKey = `PropertyPreference:${firebaseUid}`
-
-    await setValKey(cacheKey, JSON.stringify(pref))
+    const cacheKey = `PropertyPreference:${firebaseUid}`;
+    await setValKey(cacheKey, JSON.stringify(pref));
 
     return pref;
 }

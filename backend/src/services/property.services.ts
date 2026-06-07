@@ -1,4 +1,5 @@
 import { qdrantClient } from "../config/qdrant.config";
+import { nameSpace } from "../constants/nameSpace";
 import { Property } from "../models/property.models"
 import { User } from "../models/user.models"
 import { createPropertyType } from "../types/property/property.types";
@@ -67,6 +68,8 @@ export const getPropertyDetailService = async (firebaseUid: string, propertyId: 
     return { data, source: "db" }
 }
 
+import { v5 as uuidv5 } from "uuid";
+
 export const createPropertyService = async (firebaseUid: string, prop: createPropertyType) => {
     const user = await User.findOne({
         firebaseUid
@@ -99,7 +102,6 @@ export const createPropertyService = async (firebaseUid: string, prop: createPro
         totalRooms: prop.totalRooms,
         totalBedRooms: prop.totalBedRooms,
         totalBathrooms: prop.totalBathrooms,
-
         builtUpArea: prop.builtUpArea,
         amenities: prop.amenities,
         rules: prop.rules,
@@ -107,7 +109,6 @@ export const createPropertyService = async (firebaseUid: string, prop: createPro
     })
 
     await property.populate("ownerId", "name verified phoneNumber")
-
 
     const searchText = `
 ${property.name}
@@ -132,13 +133,13 @@ Rules:
 ${property.rules.join(" ")}
 `;
 
-    const embedding = await getEmbeddingServices(searchText)
-
+    const embedding = await getEmbeddingServices(searchText);
+    const pointId = uuidv5(property._id.toString(), nameSpace);
 
     await qdrantClient.upsert("properties", {
         points: [
             {
-                id: property._id.toString(),
+                id: pointId,
                 vector: embedding,
                 payload: {
                     propertyId: property._id.toString(),
@@ -156,7 +157,6 @@ ${property.rules.join(" ")}
     await clearCache('properties:active')
     return property;
 };
-
 export const searchPropertyService = async (
     firebaseUid: string,
     searchQuery: string

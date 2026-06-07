@@ -14,5 +14,5 @@ export const envSchema = z.object({
     QDRANT_API_KEY: z.string(),
     OPENAI_API_KEY:z.string(),
     OLLAMA_URL:z.string(),
-    GENAI_API_KEY:z.string()
+    GENAI_API_KEY:z.string(),
 });
