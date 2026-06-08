@@ -1,5 +1,5 @@
 import { api } from "../config/api.config";
-import { userPropertyPreferenceSchema, type createUserPropertyPreferencePayloadType, type userPropertyPreferenceType } from "../types/userPriority.types";
+import { getRoomMatePreferenceSchema, userPropertyPreferenceSchema, type createUserPropertyPreferencePayloadType, type getRoomMatePreferenceType, type userPropertyPreferenceType } from "../types/userPriority.types";
 
 
 export const createUserPriorityApi = async (data: createUserPropertyPreferencePayloadType): Promise<userPropertyPreferenceType> => {
@@ -10,6 +10,11 @@ export const createUserPriorityApi = async (data: createUserPropertyPreferencePa
 export const getUserPropertyPriorityApi = async (): Promise<userPropertyPreferenceType> => {
     const res = await api.get("/api/propertyPreference/get");
     return userPropertyPreferenceSchema.parse(res.data.data)
+}
+
+export const getRoomMatePreferenceApi = async (): Promise<getRoomMatePreferenceType> => {
+    const res = await api.get("/api/propertyPreference/roomMate/match");
+    return getRoomMatePreferenceSchema.parse(res.data.data)
 }
 
 export const updateUserPropertyPriorityApi = async (data: createUserPropertyPreferencePayloadType): Promise<userPropertyPreferenceType> => {

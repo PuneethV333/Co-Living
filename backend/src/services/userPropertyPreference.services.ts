@@ -20,6 +20,13 @@ export const createUserPropertyPreferenceService = async (
         throw new Error("Unauthorized");
     }
 
+    const existing = await PropertyPreference.exists({
+        userId: user._id,
+    });
+
+    if (existing) {
+        throw new Error("Preference already exists");
+    }
     const pref = await PropertyPreference.create({
         userId: user._id,
         budget: {
@@ -77,9 +84,11 @@ Preferred locations: ${pref.preferredLocations.join(", ")}
         ],
     });
 
+    const cacheKey = `PropertyPreference:${firebaseUid}`
+    await setValKey(cacheKey, JSON.stringify(pref));
+
     return pref;
 };
-
 
 export const getUserPropertyPreferenceService = async (firebaseUid: string) => {
     const user = await User.exists({ firebaseUid });
@@ -177,3 +186,69 @@ Preferred locations: ${pref.preferredLocations.join(", ")}
     return pref;
 }
 
+export const getRoomMatePreferenceService = async (firebaseUid: string) => {
+    const user = await User.exists({ firebaseUid });
+
+    if (!user) {
+        throw new Error("Unauthorized")
+    }
+
+    const pointId = uuidv5(user._id.toString(), nameSpace);
+
+    const points = await qdrantClient.retrieve(
+        "roomMate",
+        {
+            ids: [pointId],
+            with_vector: true,
+            with_payload: true,
+        }
+    );
+
+    const currentUserPoint = points[0];
+
+    if (!currentUserPoint) {
+        throw new Error(
+            "User preference embedding not found"
+        );
+    }
+
+
+    const matches = await qdrantClient.query(
+        "roomMate",
+        {
+            query: currentUserPoint.vector as number[],
+            limit: 20,
+            with_payload: true,
+            filter: {
+                must_not: [
+                    {
+                        key: "userId",
+                        match: {
+                            value: user._id.toString(),
+                        },
+                    },
+                ],
+            },
+        }
+    );
+
+    const userIds = matches.points.map(
+        (point) => point.payload?.userId as string
+    );
+
+    const users = await User.find({
+        _id: { $in: userIds },
+    }).lean();
+
+    const scoreMap = new Map(
+        matches.points.map((point) => [
+            point.payload?.userId,
+            point.score,
+        ])
+    );
+
+    return users.map((u) => ({
+        ...u,
+        matchScore: scoreMap.get(u._id.toString()),
+    }));
+}

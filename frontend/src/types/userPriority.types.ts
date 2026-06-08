@@ -106,3 +106,24 @@ export const createUserPropertyPreferencePayloadSchema = z.object({
 })
 
 export type createUserPropertyPreferencePayloadType = z.infer<typeof createUserPropertyPreferencePayloadSchema>
+
+
+export const getRoomMatePreferenceSchema = z.object({
+    matchScore: z.number(),
+    name: z.string(),
+    role: z.enum(["Tenant", "Owner", "Admin"]),
+    dob: z.coerce.date(),
+    firebaseUid: z.string(),
+    email: z.string(),
+    profilePic: z.string(),
+    bio: z.string(),
+    verified: z.boolean(),
+    tenantProfile: z.string().nullable(),
+    ownerProfile: z.string().nullable(),
+    completeOnBoarding: z.boolean(),
+    phoneNumber: z.string(),
+    _id: z.string(),
+
+})
+
+export type  getRoomMatePreferenceType = z.infer<typeof getRoomMatePreferenceSchema>

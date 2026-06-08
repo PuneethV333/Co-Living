@@ -5,5 +5,6 @@ import { createUserPropertyPreference, getUserPropertyPreference, updateUserProp
 export const userPropertyPreferenceRouter = Router()
 
 userPropertyPreferenceRouter.get("/get", authMiddleWare, getUserPropertyPreference)
+userPropertyPreferenceRouter.get("/roomMate/match", authMiddleWare, getUserPropertyPreference)
 userPropertyPreferenceRouter.post("/create", authMiddleWare, createUserPropertyPreference)
 userPropertyPreferenceRouter.post("/update", authMiddleWare, updateUserPropertyPreference)

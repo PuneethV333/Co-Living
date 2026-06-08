@@ -17,6 +17,7 @@ const PropertyDetail = lazy(() => import("./pages/property/PropertyDetail"));
 const Browse = lazy(() => import("./pages/property/Browse"));
 const ListProperty = lazy(() => import("./pages/property/ListProperty"));
 const PropertyPreferenceSurvey = lazy(() => import("./pages/userPropertyPriority/PropertyPreferenceSurvey"));
+const RoomMates = lazy(() => import("./pages/userPropertyPriority/RoomMates"));
 
 const getNotificationMessage = (notification: notificationType) => {
   switch (notification.type) {
@@ -143,6 +144,7 @@ const App = () => {
             <Route path="create/Property" element={<ListProperty />} />
             <Route path="survey" element={<PropertyPreferenceSurvey mode="create" />} />
             <Route path="preferences/edit" element={<PropertyPreferenceSurvey mode="update" />} />
+            <Route path="roommates" element={<RoomMates/>} />
           </Route>
         </Routes>
       </Suspense>

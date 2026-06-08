@@ -21,7 +21,7 @@ export const initQdrant = async () => {
     }
 
     if (!propertyExists) {
-        await qdrantClient.createCollection("property", {
+        await qdrantClient.createCollection("properties", {
             vectors: { size: 3072, distance: "Cosine" },
         });
         console.log("✅ Qdrant collection 'property' created");

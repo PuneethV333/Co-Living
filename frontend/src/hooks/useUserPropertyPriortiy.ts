@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUserPriorityApi, getUserPropertyPriorityApi, updateUserPropertyPriorityApi } from "../api/propertyPriority.api";
+import { createUserPriorityApi, getRoomMatePreferenceApi, getUserPropertyPriorityApi, updateUserPropertyPriorityApi } from "../api/propertyPriority.api";
 import { Auth } from "../config/firebase.config";
 import type { createUserPropertyPreferencePayloadType } from "../types/userPriority.types";
 import toast from "react-hot-toast";
@@ -8,6 +8,13 @@ export const useGetUserPropertyPriority = () =>
     useQuery({
         queryKey: ["userPropertyPriority"],
         queryFn: getUserPropertyPriorityApi,
+        enabled: !!Auth.currentUser
+    })
+    
+export const useGetRoomMatePreference = () =>
+    useQuery({
+        queryKey: ["roomMate","userPropertyPriority"],
+        queryFn: getRoomMatePreferenceApi,
         enabled: !!Auth.currentUser
     })
 
