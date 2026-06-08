@@ -45,7 +45,7 @@ const NAV_ITEMS = [
   { icon: Home, label: "Home", to: "/home", badge: null },
   { icon: Search, label: "Browse", to: "/home/browse", badge: 124 },
   { icon: Users, label: "Roommates", to: "/home/roommates", badge: null },
-  { icon: BookOpen, label: "My Bookings", to: "/home/bookings", badge: null },
+  { icon: BookOpen, label: "Messages", to: "/home/messages", badge: null },
   { icon: Heart, label: "Saved", to: "/home/saved", badge: null },
 ];
 
