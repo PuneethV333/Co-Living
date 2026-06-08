@@ -19,140 +19,141 @@ const ListProperty = lazy(() => import("./pages/property/ListProperty"));
 const PropertyPreferenceSurvey = lazy(() => import("./pages/userPropertyPriority/PropertyPreferenceSurvey"));
 const RoomMates = lazy(() => import("./pages/userPropertyPriority/RoomMates"));
 const Profile = lazy(() => import("./pages/Home/Profile/Profile"));
+const Notifications = lazy(() => import("./pages/Notification/Notification"));
 
 
 const getNotificationMessage = (notification: notificationType) => {
-  switch (notification.type) {
-    case "VISIT_REQUEST":
-      return "requested a property visit";
+    switch (notification.type) {
+        case "VISIT_REQUEST":
+            return "requested a property visit";
 
-    case "MESSAGE":
-      return "sent you a message";
+        case "MESSAGE":
+            return "sent you a message";
 
-    case "BOOKING_UPDATE":
-      return "updated a booking";
+        case "BOOKING_UPDATE":
+            return "updated a booking";
 
-    default:
-      return "";
-  }
+        default:
+            return "";
+    }
 };
 
 const App = () => {
-  const [user, authLoading] = useAuthState(Auth);
-  const { data, isPending } = useGetMe();
-  const { data: newNotification } = useGetNewNotifications();
-  const shownNotifications = useRef(new Set<string>());
+    const [user, authLoading] = useAuthState(Auth);
+    const { data, isPending } = useGetMe();
+    const { data: newNotification } = useGetNewNotifications();
+    const shownNotifications = useRef(new Set<string>());
 
-  useEffect(() => {
-    if (!newNotification?.length) return;
+    useEffect(() => {
+        if (!newNotification?.length) return;
 
-    newNotification.forEach((notification) => {
-      if (shownNotifications.current.has(notification.senderId.name)) {
-        return;
-      }
-
-      shownNotifications.current.add(notification.senderId.name);
-
-      toast.custom((toastInstance) => (
-        <div
-          className={`${
-            toastInstance.visible
-              ? "animate-custom-enter"
-              : "animate-custom-leave"
-          } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-        >
-          <div className="flex-1 w-0 p-4">
-            <div className="flex items-start">
-              <div className="shrink-0 pt-0.5">
-                <img
-                  className="h-10 w-10 rounded-full"
-                  src={notification.senderId?.profilePic}
-                  alt="user"
-                />
-              </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900">
-                  {notification.senderId.name}
-                </p>
-                <p className="mt-1 text-sm text-gray-500">
-                  {getNotificationMessage(notification)}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex border-l border-gray-200">
-            <button
-              onClick={() => toast.dismiss(toastInstance.id)}
-              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      ));
-    });
-  }, [newNotification]);
-
-  if (authLoading || (user && isPending)) {
-    return <Spinner />;
-  }
-
-  return (
-    <>
-      <Toaster position="top-right" />
-      <Suspense fallback={<Spinner />}>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              !user ? (
-                <Login />
-              ) : !data?.completeOnBoarding ? (
-                <Navigate to="/on-boarding" replace />
-              ) : (
-                <Navigate to="/home" replace />
-              )
+        newNotification.forEach((notification) => {
+            if (shownNotifications.current.has(notification.senderId.name)) {
+                return;
             }
-          />
-          <Route
-            path="/on-boarding"
-            element={
-              !user ? (
-                <Navigate to="/login" replace />
-              ) : data?.completeOnBoarding ? (
-                <Navigate to="/home" replace />
-              ) : (
-                <OnBoarding />
-              )
-            }
-          />
-          <Route
-            path="/home"
-            element={
-              user ? (
-                data?.completeOnBoarding ? (
-                  <Home />
-                ) : (
-                  <Navigate to="/on-boarding" replace />
-                )
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="property/details/:id" element={<PropertyDetail />} />
-            <Route path="browse" element={<Browse />} />
-            <Route path="create/Property" element={<ListProperty />} />
-            <Route path="survey" element={<PropertyPreferenceSurvey mode="create" />} />
-            <Route path="preferences/edit" element={<PropertyPreferenceSurvey mode="update" />} />
-            <Route path="roommates" element={<RoomMates/>} />
-            <Route path="profile" element={<Profile/>} />
-          </Route>
-        </Routes>
-      </Suspense>
-    </>
-  );
+
+            shownNotifications.current.add(notification.senderId.name);
+
+            toast.custom((toastInstance) => (
+                <div
+                    className={`${toastInstance.visible
+                            ? "animate-custom-enter"
+                            : "animate-custom-leave"
+                        } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+                >
+                    <div className="flex-1 w-0 p-4">
+                        <div className="flex items-start">
+                            <div className="shrink-0 pt-0.5">
+                                <img
+                                    className="h-10 w-10 rounded-full"
+                                    src={notification.senderId?.profilePic}
+                                    alt="user"
+                                />
+                            </div>
+                            <div className="ml-3 flex-1">
+                                <p className="text-sm font-medium text-gray-900">
+                                    {notification.senderId.name}
+                                </p>
+                                <p className="mt-1 text-sm text-gray-500">
+                                    {getNotificationMessage(notification)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex border-l border-gray-200">
+                        <button
+                            onClick={() => toast.dismiss(toastInstance.id)}
+                            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            ));
+        });
+    }, [newNotification]);
+
+    if (authLoading || (user && isPending)) {
+        return <Spinner />;
+    }
+
+    return (
+        <>
+            <Toaster position="top-right" />
+            <Suspense fallback={<Spinner />}>
+                <Routes>
+                    <Route
+                        path="/login"
+                        element={
+                            !user ? (
+                                <Login />
+                            ) : !data?.completeOnBoarding ? (
+                                <Navigate to="/on-boarding" replace />
+                            ) : (
+                                <Navigate to="/home" replace />
+                            )
+                        }
+                    />
+                    <Route
+                        path="/on-boarding"
+                        element={
+                            !user ? (
+                                <Navigate to="/login" replace />
+                            ) : data?.completeOnBoarding ? (
+                                <Navigate to="/home" replace />
+                            ) : (
+                                <OnBoarding />
+                            )
+                        }
+                    />
+                    <Route
+                        path="/home"
+                        element={
+                            user ? (
+                                data?.completeOnBoarding ? (
+                                    <Home />
+                                ) : (
+                                    <Navigate to="/on-boarding" replace />
+                                )
+                            ) : (
+                                <Navigate to="/login" replace />
+                            )
+                        }
+                    >
+                        <Route index element={<Dashboard />} />
+                        <Route path="property/details/:id" element={<PropertyDetail />} />
+                        <Route path="browse" element={<Browse />} />
+                        <Route path="create/Property" element={<ListProperty />} />
+                        <Route path="survey" element={<PropertyPreferenceSurvey mode="create" />} />
+                        <Route path="preferences/edit" element={<PropertyPreferenceSurvey mode="update" />} />
+                        <Route path="roommates" element={<RoomMates />} />
+                        <Route path="profile" element={<Profile />} />
+                        <Route path="messages" element={<Notifications />} />
+                    </Route>
+                </Routes>
+            </Suspense>
+        </>
+    );
 };
 
 export default App;

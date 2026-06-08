@@ -20,7 +20,7 @@ export const notificationSchema = z.object({
     ]),
     sent: z.boolean(),
     replied: z.boolean(),
-    requiresAction:z.boolean(),
+    requiresAction: z.boolean(),
     createdAt: z.coerce.date()
 })
 
