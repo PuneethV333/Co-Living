@@ -11,3 +11,8 @@ export const getSavedPropertyApi = async (): Promise<propertySchemaType[]> => {
     const res = await api.get("/api/user/saved/property")
     return propertySchema.array().parse(res.data.data)
 }
+
+export const toggleSavePropertyApi = async (propertyId: string): Promise<propertySchemaType[]> => {
+    const res = await api.post(`/api/user/save/${propertyId}`)
+    return propertySchema.array().parse(res.data.data)
+}
