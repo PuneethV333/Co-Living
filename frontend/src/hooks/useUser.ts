@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { Auth } from "../config/firebase.config";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { userUpdateType } from "../types/user.types";
-import { updateUserDataApi } from "../api/user.api";
+import { getSavedPropertyApi, updateUserDataApi } from "../api/user.api";
 import toast from "react-hot-toast";
 import type { UserType } from "../types/auth.types";
 
@@ -44,3 +44,10 @@ export const useUpdateUser = () => {
         },
     });
 };
+
+export const useGetSavedProperty = () =>
+    useQuery({
+        queryKey: ["saved", "property"],
+        queryFn: getSavedPropertyApi,
+        enabled: !!Auth.currentUser
+    })

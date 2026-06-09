@@ -13,7 +13,8 @@ export interface IUser {
     tenantProfile:mongoose.Types.ObjectId | null,
     ownerProfile:mongoose.Types.ObjectId|null,
     completeOnBoarding:boolean,
-    phoneNumber:string
+    phoneNumber:string,
+    saved:mongoose.Types.ObjectId[]
 }
 
 export const userUpdateSchema = z.object({

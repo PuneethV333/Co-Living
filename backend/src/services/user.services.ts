@@ -1,6 +1,6 @@
 import { User } from "../models/user.models"
 import { userUpdateType } from "../types/user/user.types"
-import { setValKey } from "../utils/redis.utils"
+import { getVal, setValKey } from "../utils/redis.utils"
 
 export const updateUserDataService = async (firebaseUid: string, payload: userUpdateType) => {
     const user = await User.findOneAndUpdate({
@@ -26,4 +26,17 @@ export const updateUserDataService = async (firebaseUid: string, payload: userUp
     await setValKey(cacheKey, JSON.stringify(user), 3600)
 
     return user
+}
+
+export const getSavedPropertyDataService = async (firebaseUid: string) => {
+    const cacheKey = `saved:${firebaseUid}`
+    const cached = await getVal(cacheKey)
+    if (cached) {
+        return { data: JSON.parse(cached), source: "redis" }
+    }
+
+    const data = await User.findOne({ firebaseUid }).select("saved").populate("saved").lean()
+    const savedProperties = data?.saved ?? [];
+    await setValKey(cacheKey, JSON.stringify(savedProperties))
+    return { data:savedProperties, source: "db" }
 }

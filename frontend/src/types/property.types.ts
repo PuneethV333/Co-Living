@@ -46,6 +46,8 @@ export const propertySchema = z.object({
     updatedAt: z.coerce.date(),
 });
 
+export type propertySchemaType = z.infer<typeof propertySchema>
+
 export const propertiesResponseSchema = z.object({
     data: z.array(propertySchema),
     message: z.string().optional(),
