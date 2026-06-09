@@ -51,7 +51,7 @@ export const getMeServices = async (
         return null;
     }
 
-    await setValKey(cacheKey, JSON.stringify(user));
+    await setValKey(cacheKey, JSON.stringify(user),3600);
 
     return {
         data: user,

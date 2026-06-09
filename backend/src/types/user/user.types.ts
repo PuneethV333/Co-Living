@@ -1,15 +1,5 @@
 import mongoose from "mongoose";
-
-export interface preferencesType {
-    genderPreference:"Male"|"Female"|"Other",
-    minBudgetRange: number,
-    maxBudgetRange: number,
-    preferredAmenities: string[],
-    preferredLocations: string[],
-    workingHours: string,
-    smokingAllowed: boolean,
-    petsAllowed: boolean,
-}
+import z from "zod";
 
 export interface IUser {
     name:string,
@@ -25,3 +15,13 @@ export interface IUser {
     completeOnBoarding:boolean,
     phoneNumber:string
 }
+
+export const userUpdateSchema = z.object({
+    name:z.string(),
+    profilePic:z.string(),
+    bio:z.string(),
+    email:z.string(),
+    phoneNumber:z.string(),
+})
+
+export type userUpdateType = z.infer<typeof userUpdateSchema>

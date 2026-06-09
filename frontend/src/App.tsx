@@ -20,6 +20,7 @@ const PropertyPreferenceSurvey = lazy(() => import("./pages/userPropertyPriority
 const RoomMates = lazy(() => import("./pages/userPropertyPriority/RoomMates"));
 const Profile = lazy(() => import("./pages/Home/Profile/Profile"));
 const Notifications = lazy(() => import("./pages/Notification/Notification"));
+const UpdateUserData =  lazy(() => import("./pages/Home/Profile/UpdateUserData"));
 
 
 const getNotificationMessage = (notification: notificationType) => {
@@ -149,7 +150,9 @@ const App = () => {
                         <Route path="roommates" element={<RoomMates />} />
                         <Route path="profile" element={<Profile />} />
                         <Route path="messages" element={<Notifications />} />
+                        <Route path="profile/edit" element={<UpdateUserData />} />
                     </Route>
+                    <Route path="*" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />}/>
                 </Routes>
             </Suspense>
         </>

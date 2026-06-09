@@ -13,6 +13,7 @@ import { propertyRouter } from "./routes/property.router";
 import { roomRouter } from "./routes/room.router";
 import { notificationRouter } from "./routes/notification.router";
 import { userPropertyPreferenceRouter } from "./routes/userPropertyPreference.router";
+import { userRouter } from "./routes/user.router";
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use("/api/property", propertyRouter);
 app.use("/api/room", roomRouter);
 app.use("/api/notification", notificationRouter);
 app.use("/api/propertyPreference", userPropertyPreferenceRouter);
+app.use("/api/user", userRouter);
 
 app.get("/test", (_: Request, res: Response) => {
     res.send("Server is running");

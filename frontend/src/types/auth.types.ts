@@ -27,6 +27,8 @@ export const tenantSchema = z.object({
 
 export const userSchema = z.object({
   _id: z.string(),
+  name:z.string().optional(),
+  phoneNumber:z.string().optional(),
   role: z.enum(["Tenant", "Owner", "Admin"]),
   dob: z.coerce.date().optional(),
   email: z.email(),
