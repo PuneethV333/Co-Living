@@ -9,7 +9,6 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useGetMe } from "./hooks/useAuth";
 import { useGetNewNotifications } from "./hooks/useNotification";
 import type { notificationType } from "./types/notification.types";
-import SavedProperties from "./pages/property/SavedProperty/SavedProperties";
 
 const Login = lazy(() => import("./pages/Login/Login"));
 const OnBoarding = lazy(() => import("./pages/OnBoarding/OnBoarding"));
@@ -22,6 +21,7 @@ const RoomMates = lazy(() => import("./pages/userPropertyPriority/RoomMates"));
 const Profile = lazy(() => import("./pages/Home/Profile/Profile"));
 const Notifications = lazy(() => import("./pages/Notification/Notification"));
 const UpdateUserData =  lazy(() => import("./pages/Home/Profile/UpdateUserData"));
+const SavedProperties = lazy(() => import("./pages/property/SavedProperty/SavedProperties"));
 
 
 const getNotificationMessage = (notification: notificationType) => {
