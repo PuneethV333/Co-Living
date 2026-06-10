@@ -6,4 +6,4 @@ export const userRouter = Router()
 
 userRouter.post("/update", authMiddleWare, updateUserData)
 userRouter.get("/saved/property", authMiddleWare, getSavedPropertyData)
-userRouter.post("/save/:id", authMiddleWare, toggleSaveProperty)
+userRouter.post("/save/:id", authMiddleWare, toggleSaveProperty)    

@@ -63,3 +63,5 @@ export const PROPERTY_TYPES: { value: PropertyTypeEnum; label: string; icon: Rea
   { value: "office",     label: "Office",     icon: <Building2 size={24} /> },
   { value: "land",       label: "Land",       icon: <MapPin size={24} /> },
 ];
+
+export const DEFAULT_RULES = ["No smoking", "No alcohol", "No loud music", "No pets"];

@@ -8,7 +8,7 @@ import { Auth } from "./config/firebase.config";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useGetMe } from "./hooks/useAuth";
 import { useGetNewNotifications } from "./hooks/useNotification";
-import type { notificationType } from "./types/notification.types";
+import { getNotificationMessage } from "./services/getNotificationMessage";
 
 const Login = lazy(() => import("./pages/Login/Login"));
 const OnBoarding = lazy(() => import("./pages/OnBoarding/OnBoarding"));
@@ -16,29 +16,14 @@ const Dashboard = lazy(() => import("./pages/Home/subPages/Dashboard"));
 const PropertyDetail = lazy(() => import("./pages/property/PropertyDetail"));
 const Browse = lazy(() => import("./pages/property/Browse"));
 const ListProperty = lazy(() => import("./pages/property/ListProperty"));
+const CreateRoom = lazy(() => import("./pages/property/CreateRoom"));
 const PropertyPreferenceSurvey = lazy(() => import("./pages/userPropertyPriority/PropertyPreferenceSurvey"));
 const RoomMates = lazy(() => import("./pages/userPropertyPriority/RoomMates"));
 const Profile = lazy(() => import("./pages/Home/Profile/Profile"));
 const Notifications = lazy(() => import("./pages/Notification/Notification"));
-const UpdateUserData =  lazy(() => import("./pages/Home/Profile/UpdateUserData"));
+const UpdateUserData = lazy(() => import("./pages/Home/Profile/UpdateUserData"));
 const SavedProperties = lazy(() => import("./pages/property/SavedProperty/SavedProperties"));
 
-
-const getNotificationMessage = (notification: notificationType) => {
-    switch (notification.type) {
-        case "VISIT_REQUEST":
-            return "requested a property visit";
-
-        case "MESSAGE":
-            return "sent you a message";
-
-        case "BOOKING_UPDATE":
-            return "updated a booking";
-
-        default:
-            return "";
-    }
-};
 
 const App = () => {
     const [user, authLoading] = useAuthState(Auth);
@@ -59,8 +44,8 @@ const App = () => {
             toast.custom((toastInstance) => (
                 <div
                     className={`${toastInstance.visible
-                            ? "animate-custom-enter"
-                            : "animate-custom-leave"
+                        ? "animate-custom-enter"
+                        : "animate-custom-leave"
                         } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
                 >
                     <div className="flex-1 w-0 p-4">
@@ -146,16 +131,17 @@ const App = () => {
                         <Route path="property/details/:id" element={<PropertyDetail />} />
                         <Route path="browse" element={<Browse />} />
                         <Route path="create/Property" element={<ListProperty />} />
+                        <Route path="create/Room" element={<CreateRoom />} />
                         <Route path="survey" element={<PropertyPreferenceSurvey mode="create" />} />
                         <Route path="preferences/edit" element={<PropertyPreferenceSurvey mode="update" />} />
                         <Route path="roommates" element={<RoomMates />} />
                         <Route path="profile" element={<Profile />} />
                         <Route path="messages" element={<Notifications />} />
                         <Route path="profile/edit" element={<UpdateUserData />} />
-                        <Route path="/saved/property" element={<SavedProperties />} />
-                        
+                        <Route path="saved" element={<SavedProperties />} />
+
                     </Route>
-                    <Route path="*" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />}/>
+                    <Route path="*" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />} />
                 </Routes>
             </Suspense>
         </>

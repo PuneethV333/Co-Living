@@ -181,10 +181,26 @@ export const createPropertySchema = z.object({
 export type createPropertyType = z.infer<typeof createPropertySchema>
 
 export type PropertyTypeEnum =
-  | "apartment" | "house" | "villa" | "studio" | "pg"
-  | "hostel" | "farmhouse" | "office" | "shop" | "warehouse" | "land";
+    | "apartment" | "house" | "villa" | "studio" | "pg"
+    | "hostel" | "farmhouse" | "office" | "shop" | "warehouse" | "land";
 
 export type AmenityEnum =
-  | "wifi" | "parking" | "ac" | "tv" | "kitchen" | "washingMachine"
-  | "powerBackup" | "lift" | "gym" | "swimmingPool" | "security"
-  | "petFriendly" | "balcony" | "garden" | "waterSupply" | "geyser" | "furnished";
+    | "wifi" | "parking" | "ac" | "tv" | "kitchen" | "washingMachine"
+    | "powerBackup" | "lift" | "gym" | "swimmingPool" | "security"
+    | "petFriendly" | "balcony" | "garden" | "waterSupply" | "geyser" | "furnished";
+
+export const createRoomSchema = z.object({
+    createPropertySchema: createPropertySchema,
+    capacity: z.number(),
+    roomType: z.enum(["shared", "private"]),
+    bedType: z.enum(["single", "double", "bunk"]),
+    area: z.number(),
+    monthlyRent: z.number(),
+    securityDeposit: z.number(),
+    maintenanceCharges: z.number(),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date().nullable(),
+    currentOccupants: z.number(),
+})
+
+export type createRoomType = z.infer<typeof createRoomSchema>
