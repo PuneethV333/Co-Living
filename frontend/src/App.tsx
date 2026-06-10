@@ -9,6 +9,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useGetMe } from "./hooks/useAuth";
 import { useGetNewNotifications } from "./hooks/useNotification";
 import type { notificationType } from "./types/notification.types";
+import SavedProperties from "./pages/property/SavedProperty/SavedProperties";
 
 const Login = lazy(() => import("./pages/Login/Login"));
 const OnBoarding = lazy(() => import("./pages/OnBoarding/OnBoarding"));
@@ -151,6 +152,8 @@ const App = () => {
                         <Route path="profile" element={<Profile />} />
                         <Route path="messages" element={<Notifications />} />
                         <Route path="profile/edit" element={<UpdateUserData />} />
+                        <Route path="/saved/property" element={<SavedProperties />} />
+                        
                     </Route>
                     <Route path="*" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />}/>
                 </Routes>
