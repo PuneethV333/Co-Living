@@ -221,7 +221,7 @@ const Dashboard = () => {
                         <EmptyState label="properties" />
                     ) : (
                         filteredProperties.map((p) => (
-                            <PropertyCard key={p._id} p={p} view={view} fav={saved?.some((x) => x._id == p._id)}/>
+                            <PropertyCard key={p._id} p={p} view={view} fav={saved?.some((x) => x._id == p._id)} />
                         ))
                     )}
                 </div>
@@ -278,10 +278,10 @@ const Dashboard = () => {
                         <EmptyState label="rooms" />
                     ) : (
                         filteredRooms.map((r) => {
-                            const propName = properties?.find(
+                            const prop = properties?.find(
                                 (p) => p._id === r.propertyId,
-                            )?.name;
-                            return <RoomRow key={r._id} r={r} propertyName={propName} />;
+                            );
+                            return <RoomRow key={r._id} r={r} propertyName={prop?.name} ownerId={prop?.ownerId._id} />;
                         })
                     )}
                 </div>
