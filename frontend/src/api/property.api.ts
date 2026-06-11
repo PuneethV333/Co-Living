@@ -9,8 +9,6 @@ import {
 
 export const getPropertiesApi = async (): Promise<PropertiesResponse> => {
     const res = await api.get("/api/property/get");
-    console.log(res);
-    
     return propertiesResponseSchema.parse(res.data);
 };
 
@@ -24,7 +22,12 @@ export const createPropertyApi = async (data: createPropertyType): Promise<Prope
     return propertySchema.parse(res.data.data);
 }
 
-export const searchForPropertyApi = async (search:string):Promise<PropertiesResponse> => {
-    const res = await api.post("/api/property/search",search);
+export const searchForPropertyApi = async (search: string): Promise<PropertiesResponse> => {
+    const res = await api.post("/api/property/search", search);
+    return propertiesResponseSchema.parse(res.data)
+}
+
+export const getMyPropertiesApi = async (): Promise<PropertiesResponse> => {
+    const res = await api.get("/api/property/my");
     return propertiesResponseSchema.parse(res.data)
 }

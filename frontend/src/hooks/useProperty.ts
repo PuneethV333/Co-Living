@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createPropertyApi, getPropertiesApi, getPropertiesDetailsApi, searchForPropertyApi } from "../api/property.api";
+import { createPropertyApi, getMyPropertiesApi, getPropertiesApi, getPropertiesDetailsApi, searchForPropertyApi } from "../api/property.api";
 import { createRoomApi, getRoomsApi } from "../api/room.api";
 import type { createPropertyType, createRoomType, PropertyType } from "../types/property.types";
 import toast from "react-hot-toast";
@@ -69,4 +69,11 @@ export const useCreateRoom = () => {
             console.error("Failed to create room:", error);
         },
     });
-};
+}
+
+export const useGetMyProperties = () =>
+    useQuery({
+        queryKey: ["my", "properties"],
+        queryFn: getMyPropertiesApi,
+        select: (res) => res.data
+    })

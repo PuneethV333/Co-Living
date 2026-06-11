@@ -23,6 +23,7 @@ const Profile = lazy(() => import("./pages/Home/Profile/Profile"));
 const Notifications = lazy(() => import("./pages/Notification/Notification"));
 const UpdateUserData = lazy(() => import("./pages/Home/Profile/UpdateUserData"));
 const SavedProperties = lazy(() => import("./pages/property/SavedProperty/SavedProperties"));
+const Owner = lazy(() => import("./pages/Home/Profile/Owner"));
 
 
 const App = () => {
@@ -139,7 +140,7 @@ const App = () => {
                         <Route path="messages" element={<Notifications />} />
                         <Route path="profile/edit" element={<UpdateUserData />} />
                         <Route path="saved" element={<SavedProperties />} />
-
+                        <Route path="owner" element={<Owner />} />
                     </Route>
                     <Route path="*" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />} />
                 </Routes>
