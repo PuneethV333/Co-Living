@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { getError } from "../utils/error.utils"
-import { createPropertyService, getPropertyDataService, getPropertyDetailService, searchPropertyService } from "../services/property.services"
+import { createPropertyService, getMyPropertiesService, getPropertyDataService, getPropertyDetailService, searchPropertyService } from "../services/property.services"
 import { createPropertySchema, searchSchema } from "../types/property/property.types"
 import z from "zod"
 
@@ -112,6 +112,28 @@ export const searchProperty = async (req: Request, res: Response) => {
         return res.status(200).json({
             data: result
         })
+    } catch (err) {
+        res.status(500).json(getError(err))
+    }
+}
+
+export const getMyProperties = async (req: Request, res: Response) => {
+    try {
+        const firebaseUid = req.user?.firebaseUid
+        if (!firebaseUid) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+
+        const result = await getMyPropertiesService(firebaseUid)
+
+        return res.status(200).json({
+            data: result.data,
+            source: result.source
+        })
+
     } catch (err) {
         res.status(500).json(getError(err))
     }

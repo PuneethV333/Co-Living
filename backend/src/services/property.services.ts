@@ -5,6 +5,7 @@ import { User } from "../models/user.models"
 import { createPropertyType } from "../types/property/property.types";
 import { clearCache, getVal, setValKey } from "../utils/redis.utils"
 import { getEmbeddingServices } from "./ai.services";
+import { v5 as uuidv5 } from "uuid";
 
 export const getPropertyDataService = async (
     firebaseUid: string
@@ -67,8 +68,6 @@ export const getPropertyDetailService = async (firebaseUid: string, propertyId: 
     await setValKey(cacheKey, JSON.stringify(data))
     return { data, source: "db" }
 }
-
-import { v5 as uuidv5 } from "uuid";
 
 export const createPropertyService = async (firebaseUid: string, prop: createPropertyType) => {
     const user = await User.findOne({
@@ -157,6 +156,7 @@ ${property.rules.join(" ")}
     await clearCache('properties:active')
     return property;
 };
+
 export const searchPropertyService = async (
     firebaseUid: string,
     searchQuery: string
@@ -200,3 +200,28 @@ export const searchPropertyService = async (
                 property !== undefined
         );
 };
+
+export const getMyPropertiesService = async (firebaseUid: string) => {
+    const user = await User.exists({ firebaseUid, role: "Owner" })
+
+    if (!user) {
+        throw new Error("unauthorized")
+    }
+
+    const cacheKey = `my-properties:${firebaseUid}`
+
+    const cached = await getVal(cacheKey)
+    
+    if(cached){
+        return {data:JSON.parse(cached),source:"redis"}
+    }
+
+    const properties = await Property.find({
+        ownerId: user._id
+    }).populate("ownerId", "name phoneNumber verified")
+        .lean();
+
+    await setValKey(cacheKey,JSON.stringify(properties))
+
+    return {data:properties,source:"db"}
+}
