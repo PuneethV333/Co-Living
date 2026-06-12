@@ -36,36 +36,65 @@ export const getSavedPropertyDataService = async (firebaseUid: string) => {
         return { data: JSON.parse(cached), source: "redis" }
     }
 
-    const data = await User.findOne({ firebaseUid }).select("saved").populate("saved").lean()
+    const data = await User.findOne({ firebaseUid }).select("saved").populate({
+        path: "saved",
+        populate: {
+            path: "ownerId",
+        },
+    }).lean()
     const savedProperties = data?.saved ?? [];
     await setValKey(cacheKey, JSON.stringify(savedProperties))
     return { data: savedProperties, source: "db" }
 }
 
 
-export const toggleSavePropertyService = async (firebaseUid: string, propertyId: string) => {
-    const [user, property] = await Promise.all([
-        User.findOne({ firebaseUid }).select("saved").lean(),
-        Property.exists({ _id: propertyId })
-    ])
+export const toggleSavePropertyService = async (
+    firebaseUid: string,
+    propertyId: string
+) => {
+    const [user, propertyExists] = await Promise.all([
+        User.findOne({ firebaseUid })
+            .select("saved")
+            .lean(),
+        Property.exists({ _id: propertyId }),
+    ]);
 
     if (!user) {
-        throw new Error("User not found")
+        throw new Error("User not found");
     }
 
-    if (!property) {
-        throw new Error("Property not found")
+    if (!propertyExists) {
+        throw new Error("Property not found");
     }
 
-    const isSaved = user.saved.some((x) => x.toString() === propertyId)
-    const changedSaveState = await User.findOneAndUpdate({firebaseUid},
-        isSaved?
-        {$pull:{saved:property._id}}:
-        {$addToSet:{saved:property._id}}
-    ,{returnDocument:"after"}).select("saved").populate("saved").lean()
-    
-    const cacheKey = `saved:${firebaseUid}`
-    await clearCache(cacheKey)
-    
-    return {saved :!isSaved,data:changedSaveState?.saved}
-}
+    const savedProperties = user.saved ?? [];
+
+    const isSaved = savedProperties.some(
+        (id) => id.toString() === propertyId
+    );
+
+    const updatedUser = await User.findOneAndUpdate(
+        { firebaseUid },
+        isSaved
+            ? { $pull: { saved: propertyId } }
+            : { $addToSet: { saved: propertyId } },
+        {
+            new: true,
+        }
+    )
+        .select("saved")
+        .populate({
+            path: "saved",
+            populate: {
+                path: "ownerId",
+            },
+        })
+        .lean();
+
+    await clearCache(`saved:${firebaseUid}`);
+
+    return {
+        saved: !isSaved,
+        data: updatedUser?.saved ?? [],
+    };
+};

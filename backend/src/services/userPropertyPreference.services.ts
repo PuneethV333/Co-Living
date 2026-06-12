@@ -14,42 +14,41 @@ export const createUserPropertyPreferenceService = async (
     firebaseUid: string,
     payload: createUserPropertyPreferencePayloadType
 ) => {
-    const user = await User.exists({ firebaseUid });
+    const user = await User.findOne({ firebaseUid });
 
     if (!user) {
         throw new Error("Unauthorized");
     }
 
-    const existing = await PropertyPreference.exists({
-        userId: user._id,
-    });
-
-    if (existing) {
-        throw new Error("Preference already exists");
-    }
-    const pref = await PropertyPreference.create({
-        userId: user._id,
-        budget: {
-            max: payload.max,
-            min: payload.min,
+    const pref = await PropertyPreference.findOneAndUpdate(
+        { userId: user._id },
+        {
+            budget: {
+                max: payload.max,
+                min: payload.min,
+            },
+            preferredLocations: payload.preferredLocations,
+            propertyTypes: payload.propertyTypes,
+            amenities: payload.amenities,
+            roomPreference: {
+                privateRoom: payload.privateRoom,
+                sharedRoom: payload.sharedRoom,
+            },
+            genderPreference: payload.genderPreference,
+            occupancyPreference: payload.occupancyPreference,
+            workMode: payload.workMode,
+            foodPreference: payload.foodPreference,
+            petFriendly: payload.petFriendly,
+            transportNeeds: {
+                metroNearby: payload.metroNearby,
+                parkingRequired: payload.parkingRequired,
+            },
         },
-        preferredLocations: payload.preferredLocations,
-        propertyTypes: payload.propertyTypes,
-        amenities: payload.amenities,
-        roomPreference: {
-            privateRoom: payload.privateRoom,
-            sharedRoom: payload.sharedRoom,
-        },
-        genderPreference: payload.genderPreference,
-        occupancyPreference: payload.occupancyPreference,
-        workMode: payload.workMode,
-        foodPreference: payload.foodPreference,
-        petFriendly: payload.petFriendly,
-        transportNeeds: {
-            metroNearby: payload.metroNearby,
-            parkingRequired: payload.parkingRequired,
-        },
-    });
+        {
+            new: true,
+            upsert: true,
+        }
+    );
 
     const roommateProfile = `
 Gender: ${pref.genderPreference}
@@ -84,7 +83,7 @@ Preferred locations: ${pref.preferredLocations.join(", ")}
         ],
     });
 
-    const cacheKey = `PropertyPreference:${firebaseUid}`
+    const cacheKey = `PropertyPreference:${firebaseUid}`;
     await setValKey(cacheKey, JSON.stringify(pref));
 
     return pref;

@@ -186,7 +186,7 @@ export const searchPropertyService = async (
         _id: { $in: propertyIds },
         isActive: true,
     })
-        .populate("ownerId", "name profilePic")
+        .populate("ownerId", "name profilePic verified phoneNumber")
         .lean();
 
     const propertyMap = new Map(

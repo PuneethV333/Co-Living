@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { MapPin, Bed, Bath, Maximize2, Star, Heart } from "lucide-react";
 import type { PropertyType } from "../types/property.types";
 import { getPropertyEmoji } from "../types/property.types";
@@ -13,19 +14,28 @@ export const PropertyCard = ({
 }: {
   p: PropertyType;
   view: "grid" | "list";
-  fav?: boolean | undefined;
+  fav?: boolean;
 }) => {
   const navigate = useNavigate();
   const { mutate: toggleSave, isPending } = useToggleSaveProperty();
+
+  const [isSaved, setIsSaved] = useState(fav ?? false);
+
   const emoji = getPropertyEmoji(p.propertyType);
   const isHot = p.rating >= 4.8 && p.totalReviews >= 20;
 
-  const isSaved = fav ?? false;
-
   const handleFavClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+
     if (isPending) return;
-    toggleSave(p._id);
+
+    setIsSaved((prev) => !prev);
+
+    toggleSave(p._id, {
+      onError: () => {
+        setIsSaved((prev) => !prev);
+      },
+    });
   };
 
   if (view === "list") {
@@ -45,6 +55,7 @@ export const PropertyCard = ({
             <span className="text-4xl">{emoji}</span>
           )}
         </div>
+
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -53,18 +64,21 @@ export const PropertyCard = ({
                 {isHot && <Badge label="Hot" variant="hot" />}
                 <Badge label={p.propertyType} variant="type" />
               </div>
+
               <p className="text-[14px] font-semibold text-white truncate">
                 {p.name}
               </p>
+
               <p className="flex items-center gap-1 text-[12px] text-zinc-500 mt-0.5">
-                <MapPin size={11} /> {p.location.address}, {p.location.city}
+                <MapPin size={11} />
+                {p.location.address}, {p.location.city}
               </p>
             </div>
+
             <button
               onClick={handleFavClick}
               disabled={isPending}
               className="shrink-0 text-zinc-600 hover:text-red-400 transition"
-              aria-label={isSaved ? "unsave property" : "Save property"}
             >
               <Heart
                 size={16}
@@ -75,18 +89,26 @@ export const PropertyCard = ({
               />
             </button>
           </div>
+
           <div className="flex items-center gap-4 mt-2 text-[12px] text-zinc-500">
             <span className="flex items-center gap-1">
-              <Bed size={12} /> {p.totalBedRooms} Beds
+              <Bed size={12} />
+              {p.totalBedRooms} Beds
             </span>
+
             <span className="flex items-center gap-1">
-              <Bath size={12} /> {p.totalBathrooms} Baths
+              <Bath size={12} />
+              {p.totalBathrooms} Baths
             </span>
+
             <span className="flex items-center gap-1">
-              <Maximize2 size={12} /> {p.builtUpArea} sqft
+              <Maximize2 size={12} />
+              {p.builtUpArea} sqft
             </span>
+
             <span className="flex items-center gap-1 ml-auto text-yellow-400">
-              <Star size={11} fill="currentColor" /> {p.rating}
+              <Star size={11} fill="currentColor" />
+              {p.rating}
               <span className="text-zinc-600">({p.totalReviews})</span>
             </span>
           </div>
@@ -112,6 +134,7 @@ export const PropertyCard = ({
             {emoji}
           </span>
         )}
+
         <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
           {p.verified && <Badge label="✓ Verified" variant="verified" />}
           {isHot && <Badge label="Hot" variant="hot" />}
@@ -119,14 +142,14 @@ export const PropertyCard = ({
             <Badge label={p.propertyType} variant="type" />
           )}
         </div>
+
         <button
           onClick={handleFavClick}
           disabled={isPending}
-          className="shrink-0 text-zinc-600 hover:text-red-400 transition"
-          aria-label={isSaved ? "unsave property" : "Save property"}
+          className="absolute top-3 right-3 z-10 text-zinc-600 hover:text-red-400 transition"
         >
           <Heart
-            size={16}
+            size={18}
             fill={isSaved ? "#f87171" : "none"}
             className={
               isSaved ? "text-red-400" : "text-zinc-400 hover:text-red-400"
@@ -134,31 +157,43 @@ export const PropertyCard = ({
           />
         </button>
       </div>
+
       <div className="p-4">
         <p className="text-[13px] font-semibold text-white leading-snug mb-1">
           {p.name}
         </p>
+
         <p className="flex items-center gap-1 text-[11px] text-zinc-500 mb-3">
-          <MapPin size={10} /> {p.location.address}, {p.location.city}
+          <MapPin size={10} />
+          {p.location.address}, {p.location.city}
         </p>
+
         <div className="flex items-center gap-3 text-[11px] text-zinc-500 mb-3">
           <span className="flex items-center gap-1">
-            <Bed size={11} /> {p.totalBedRooms}
+            <Bed size={11} />
+            {p.totalBedRooms}
           </span>
+
           <span className="flex items-center gap-1">
-            <Bath size={11} /> {p.totalBathrooms}
+            <Bath size={11} />
+            {p.totalBathrooms}
           </span>
+
           <span className="flex items-center gap-1">
-            <Maximize2 size={11} /> {p.builtUpArea}
+            <Maximize2 size={11} />
+            {p.builtUpArea}
           </span>
         </div>
+
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[16px] font-bold text-white">₹{p.cost}</span>
             <span className="text-[11px] text-zinc-600">/mo</span>
           </div>
+
           <span className="flex items-center gap-1 text-[11px] text-yellow-400">
-            <Star size={11} fill="currentColor" /> {p.rating}
+            <Star size={11} fill="currentColor" />
+            {p.rating}
             <span className="text-zinc-600">({p.totalReviews})</span>
           </span>
         </div>

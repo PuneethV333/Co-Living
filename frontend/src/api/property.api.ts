@@ -9,6 +9,7 @@ import {
 
 export const getPropertiesApi = async (): Promise<PropertiesResponse> => {
     const res = await api.get("/api/property/get");
+    console.log(res?.data)
     return propertiesResponseSchema.parse(res.data);
 };
 
@@ -23,7 +24,9 @@ export const createPropertyApi = async (data: createPropertyType): Promise<Prope
 }
 
 export const searchForPropertyApi = async (search: string): Promise<PropertiesResponse> => {
-    const res = await api.post("/api/property/search", search);
+    const res = await api.post("/api/property/search", {
+        query:search
+    });
     return propertiesResponseSchema.parse(res.data)
 }
 

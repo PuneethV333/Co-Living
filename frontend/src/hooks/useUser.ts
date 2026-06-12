@@ -6,7 +6,6 @@ import type { userUpdateType } from "../types/user.types";
 import { getSavedPropertyApi, toggleSavePropertyApi, updateUserDataApi } from "../api/user.api";
 import toast from "react-hot-toast";
 import type { UserType } from "../types/auth.types";
-import type { PropertyType } from "../types/property.types";
 
 export const useUser = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -54,23 +53,20 @@ export const useGetSavedProperty = () =>
     })
 
 export const useToggleSaveProperty = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useQueryClient();
+
     return useMutation({
-        mutationFn: (propertyId: string) => toggleSavePropertyApi(propertyId),
-        mutationKey: ["toggle", "save"],
-        onMutate: async (propertyId) => {
-            await queryClient.cancelQueries({ queryKey: ["saved", "property"] });
-            const prev = queryClient.getQueryData(["saved", "property"]);
-            queryClient.setQueryData(["saved", "property"],
-                (old: PropertyType[] = []) => old.filter((p) => p._id !== propertyId)
-            );
-            return { prev };
+        mutationFn: toggleSavePropertyApi,
+        mutationKey:["toggle"],
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["saved-properties"],
+            });
+
+            queryClient.invalidateQueries({
+                queryKey: ["properties"],
+            });
         },
-        onError: (_, __, ctx) => {
-            queryClient.setQueryData(["saved", "property"], ctx?.prev);
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["saved", "property"] });
-        },
-    })
-}
+    });
+};

@@ -68,10 +68,13 @@ const userSchema = new Schema<IUser>(
             type: Boolean,
             default: false
         },
-        saved: [{
-            type: Schema.Types.ObjectId,
-            ref: "Property"
-        }]
+        saved: {
+            type: [{
+                type: Schema.Types.ObjectId,
+                ref: "Property"
+            }],
+            default: []
+        }
     },
 
     { timestamps: true },

@@ -16,6 +16,7 @@ export const transportNeeds = z.object({
 })
 
 export const userPropertyPreferenceSchema = z.object({
+    _id: z.string(),
     userId: z.string(),
     budget: budget,
     preferredLocations: z.array(z.string()),
@@ -55,8 +56,8 @@ export const userPropertyPreferenceSchema = z.object({
     workMode: z.enum(["remote", "hybrid", "office", "any"]),
     foodPreference: z.enum(["veg", "non-veg", "any"]),
     petFriendly: z.boolean(),
-    transportNeeds: transportNeeds
-})
+    transportNeeds: transportNeeds,
+});
 
 export type userPropertyPreferenceType = z.infer<typeof userPropertyPreferenceSchema>
 
@@ -108,22 +109,51 @@ export const createUserPropertyPreferencePayloadSchema = z.object({
 export type createUserPropertyPreferencePayloadType = z.infer<typeof createUserPropertyPreferencePayloadSchema>
 
 
-export const getRoomMatePreferenceSchema = z.object({
-    matchScore: z.number(),
-    name: z.string(),
-    role: z.enum(["Tenant", "Owner", "Admin"]),
-    dob: z.coerce.date(),
-    firebaseUid: z.string(),
-    email: z.string(),
-    profilePic: z.string(),
-    bio: z.string(),
-    verified: z.boolean(),
-    tenantProfile: z.string().nullable(),
-    ownerProfile: z.string().nullable(),
-    completeOnBoarding: z.boolean(),
-    phoneNumber: z.string(),
+export const getRoommatePreferenceSchema = z.object({
     _id: z.string(),
+    userId: z.string(),
 
-})
+    budget: z.object({
+        min: z.number(),
+        max: z.number(),
+    }),
 
-export type  getRoomMatePreferenceType = z.infer<typeof getRoomMatePreferenceSchema>
+    preferredLocations: z.array(z.string()),
+
+    propertyTypes: z.array(
+        z.enum([
+            "apartment",
+            "house",
+            "villa",
+            "studio",
+            "pg",
+            "hostel",
+            "farmhouse",
+            "office",
+            "shop",
+            "warehouse",
+            "land",
+        ])
+    ),
+
+    amenities: z.array(z.string()),
+
+    roomPreference: z.object({
+        privateRoom: z.boolean(),
+        sharedRoom: z.boolean(),
+    }),
+
+    genderPreference: z.string(),
+    occupancyPreference: z.string(),
+    workMode: z.string(),
+    foodPreference: z.string(),
+
+    petFriendly: z.boolean(),
+
+    transportNeeds: z.object({
+        metroNearby: z.boolean(),
+        parkingRequired: z.boolean(),
+    }),
+});
+
+export type getRoomMatePreferenceType = z.infer<typeof getRoommatePreferenceSchema>
