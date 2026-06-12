@@ -12,6 +12,7 @@ import {
     verifyOtpType,
 } from "../types/user/auth.types";
 import { clearCache, getVal, setValKey } from "../utils/redis.utils";
+import { nodeMailer } from "../config/nodeMailer.config";
 
 export const handleAuth = async (firebaseUid: string) => {
     let user = await User.findOne({ firebaseUid }).lean();
@@ -154,12 +155,12 @@ export const verifyOtpService = async ({ phone, otp }: verifyOtpType) => {
 
 export const sendOtpViaEmailService = async (email: string) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await resendConfig.emails.send({
-        from: "noreply@coliving.in",
+    await nodeMailer.sendMail({
+        from: config.email,
         to: email,
-        subject: "verify your email",
-        html: `<h2>Your otp is ${otp}<h2>`
-    });
+        subject: "Verify your Email",
+        html: `<h2>Your OTP is ${otp}</h2>`
+    })
     const cacheKey = `otp:email:${email}`
     await setValKey(cacheKey, otp, 300)
 

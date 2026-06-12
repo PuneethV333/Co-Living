@@ -16,4 +16,6 @@ export const envSchema = z.object({
     OLLAMA_URL:z.string(),
     GENAI_API_KEY:z.string(),
     RESENT_API_KEY:z.string(),
+    EMAIL:z.email(),
+    PASS:z.string()
 });
