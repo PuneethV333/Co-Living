@@ -37,6 +37,7 @@ if (!envValidation.success) {
                 "OPENAI_API_KEY",
                 "OLLAMA_URL",
                 "GENAI_API_KEY",
+                "RESENT_API_KEY"
             ].includes(key)
         ) {
             console.error(`  ${key}: ${value ? "✅" : "❌"}`);
@@ -62,7 +63,8 @@ export const config = {
     qdrantUrl: envValidation.data.QDRANT_URL,
     openAiApiKey: envValidation.data.OPENAI_API_KEY,
     ollamUrl: envValidation.data.OLLAMA_URL,
-    genAiApiKey: envValidation.data.GENAI_API_KEY
+    genAiApiKey: envValidation.data.GENAI_API_KEY,
+    resendApiKey: envValidation.data.RESENT_API_KEY,
 } as const;
 
 console.log("✅ Configuration loaded successfully");

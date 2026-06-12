@@ -17,7 +17,6 @@ import toast from "react-hot-toast";
 import Spinner from "../../components/Spinner";
 import {
     useCompleteOnBoarding,
-    useGetMe,
     useSendOtp,
     useVerifyOtp,
 } from "../../hooks/useAuth";
@@ -31,19 +30,12 @@ import type {
 import { getImgUrl } from "../../utils/getUrlImg";
 import { Auth } from "../../config/firebase.config";
 import { StepBar } from "../../components/StepVar";
-import { Navigate } from "react-router-dom";
 
 const OnBoarding = () => {
     const { mutate: onBoard, isPending } = useCompleteOnBoarding();
-    const { data } = useGetMe()
     const { mutateAsync: sendOtp, isPending: sendingOtp } = useSendOtp();
     const { mutateAsync: verifyOtp, isPending: verifyingOtp } = useVerifyOtp();
 
-    useEffect(() => {
-        if (data?.completeOnBoarding) {
-            <Navigate to="/home" replace />
-        }
-    }, [data])
 
     const [step, setStep] = useState(1);
 

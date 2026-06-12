@@ -52,3 +52,12 @@ export const verifyOtpSchema = z.object({
 
 export type phoneNoType = z.infer<typeof phoneNoSchema>;
 export type verifyOtpType = z.infer<typeof verifyOtpSchema>;
+
+export const opt = z.object({
+    email:z.email()
+})
+
+export const verifyOtpViaEmailSchema = z.object({
+    email:z.email(),
+    otp:z.string().length(6)
+})

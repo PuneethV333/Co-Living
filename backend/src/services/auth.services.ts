@@ -1,4 +1,6 @@
+import { success } from "zod";
 import { config } from "../config/data.config";
+import { resendConfig } from "../config/resend.config";
 import { twilioClient } from "../config/tiwlio.config";
 import { Owner } from "../models/owner.models";
 import { Tenant } from "../models/tenant.models";
@@ -9,22 +11,28 @@ import {
     phoneNoType,
     verifyOtpType,
 } from "../types/user/auth.types";
-import { getVal, setValKey } from "../utils/redis.utils";
+import { clearCache, getVal, setValKey } from "../utils/redis.utils";
 
 export const handleAuth = async (firebaseUid: string) => {
     let user = await User.findOne({ firebaseUid }).lean();
-
     let isNewUser = false;
 
     if (!user) {
-        user = await User.create({
-            firebaseUid: firebaseUid,
+        const created = await User.create({
+            firebaseUid,
+            completeOnBoarding: false,
+            verified: false,
+            role: "Tenant",
         });
+        user = created.toObject();
         isNewUser = true;
     }
 
     const cacheKey = `session:${firebaseUid}`;
     await setValKey(cacheKey, JSON.stringify(user), 3600);
+
+    if (!user) throw new Error("failed to log user");
+
     return { user, isNewUser };
 };
 
@@ -143,3 +151,32 @@ export const verifyOtpService = async ({ phone, otp }: verifyOtpType) => {
         verified: result.status === "approved",
     };
 };
+
+export const sendOtpViaEmailService = async (email: string) => {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await resendConfig.emails.send({
+        from: "noreply@coliving.in",
+        to: email,
+        subject: "verify your email",
+        html: `<h2>Your otp is ${otp}<h2>`
+    });
+    const cacheKey = `otp:email:${email}`
+    await setValKey(cacheKey, otp, 300)
+
+    return { success: true }
+}
+
+export const verifyOtpViaEmailService = async (email: string, opt: string) => {
+    const cacheKey = `otp:email:${email}`
+    const optCached = await getVal(cacheKey)
+    if (!optCached) {
+        return { success: false }
+    }
+
+    if (opt === optCached) {
+        await clearCache(cacheKey)
+        return { success: true }
+    }
+
+    return { success: false }
+}   

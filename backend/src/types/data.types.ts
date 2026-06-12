@@ -15,4 +15,5 @@ export const envSchema = z.object({
     OPENAI_API_KEY:z.string(),
     OLLAMA_URL:z.string(),
     GENAI_API_KEY:z.string(),
+    RESENT_API_KEY:z.string(),
 });

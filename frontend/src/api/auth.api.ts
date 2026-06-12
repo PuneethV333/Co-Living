@@ -41,3 +41,26 @@ export const verifyOtpApi = async ({
 
     return res.data;
 };
+
+export const sendOtpViaEmailApi = async (email: string) => {
+    const res = await api.post("/api/auth/email/sendOtp", {
+        email,
+    });
+
+    return res.data;
+};
+
+export const verifyOtpViaEmailApi = async ({
+    email,
+    otp,
+}: {
+    email: string;
+    otp: string;
+}) => {
+    const res = await api.post("/api/auth/email/verifyOtp", {
+        email,
+        otp,
+    });
+
+    return res.data;
+};

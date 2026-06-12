@@ -4,7 +4,9 @@ import {
     completeOnBoardingApi,
     getMeApi,
     sendOtpApi,
+    sendOtpViaEmailApi,
     verifyOtpApi,
+    verifyOtpViaEmailApi,
 } from "../api/auth.api";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "../config/firebase.config";
@@ -14,10 +16,14 @@ import { onAuthStateChanged } from "firebase/auth";
 
 export const useAuth = () => {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: authApi,
         mutationKey: ["auth"],
         onSuccess: (res) => {
+            queryClient.setQueryData(["authReady"], true);
+
             if (res?.data?.completeOnBoarding) {
                 navigate("/home", { replace: true });
             } else {
@@ -30,6 +36,7 @@ export const useAuth = () => {
 export const useGetMe = () => {
     const [uid, setUid] = useState<string | null>(null);
     const [authReady, setAuthReady] = useState(false);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(Auth, (user) => {
@@ -39,10 +46,16 @@ export const useGetMe = () => {
         return () => unsubscribe();
     }, []);
 
+    const mongoReady = queryClient.getQueryData<boolean>(["authReady"]) ?? false;
+
     return useQuery({
         queryKey: ["me"],
         queryFn: getMeApi,
-        enabled: authReady && !!uid,
+        enabled: authReady && !!uid && mongoReady,
+        staleTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -73,6 +86,20 @@ export const useSendOtp = () => {
 export const useVerifyOtp = () => {
     return useMutation({
         mutationFn: verifyOtpApi,
+        mutationKey: ["otp", "verify"],
+    });
+};
+
+export const useSendViaEmailOtp = () => {
+    return useMutation({
+        mutationFn: sendOtpViaEmailApi,
+        mutationKey: ["otp"],
+    });
+};
+
+export const useVerifyViaEmailOtp = () => {
+    return useMutation({
+        mutationFn: verifyOtpViaEmailApi,
         mutationKey: ["otp", "verify"],
     });
 };
