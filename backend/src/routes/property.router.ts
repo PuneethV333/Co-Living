@@ -5,7 +5,7 @@ import { createProperty, getMyProperties, getPropertyData, getPropertyDetails, s
 export const propertyRouter = Router()
 
 propertyRouter.get("/get", authMiddleWare, getPropertyData)
-propertyRouter.get("/my/get", authMiddleWare, getMyProperties)
+propertyRouter.get("/my", authMiddleWare, getMyProperties)
 propertyRouter.get("/details/:id", authMiddleWare, getPropertyDetails)
 propertyRouter.post("/create", authMiddleWare, createProperty)
 propertyRouter.post("/search", authMiddleWare, searchProperty)
