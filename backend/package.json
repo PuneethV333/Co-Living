@@ -5,6 +5,7 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "ts-node-dev --respawn src/server.ts",
+    "build":"tsc",
     "start": "node dist/server.js",
     "test": "vitest"
   },
