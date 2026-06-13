@@ -9,7 +9,6 @@ import {
 
 export const getPropertiesApi = async (): Promise<PropertiesResponse> => {
     const res = await api.get("/api/property/get");
-    console.log(res?.data)
     return propertiesResponseSchema.parse(res.data);
 };
 
