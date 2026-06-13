@@ -2,7 +2,11 @@ import { createClient } from "redis";
 import { config } from "./data.config";
 
 export const redisClient = createClient({
-    url: config.redisUrl
+    url: config.redisUrl,
+    socket: {
+        tls: true,
+        rejectUnauthorized: false
+    }
 })
 
 redisClient.on("error", (err: Error) => {
