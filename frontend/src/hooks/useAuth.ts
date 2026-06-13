@@ -34,9 +34,9 @@ export const useAuth = () => {
 };
 
 export const useGetMe = () => {
+    
     const [uid, setUid] = useState<string | null>(null);
     const [authReady, setAuthReady] = useState(false);
-    const queryClient = useQueryClient();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(Auth, (user) => {
@@ -46,12 +46,11 @@ export const useGetMe = () => {
         return () => unsubscribe();
     }, []);
 
-    const mongoReady = queryClient.getQueryData<boolean>(["authReady"]) ?? false;
 
     return useQuery({
         queryKey: ["me"],
         queryFn: getMeApi,
-        enabled: authReady && !!uid && mongoReady,
+        enabled: authReady && !!uid ,
         staleTime: 1000 * 60 * 5,
         refetchOnWindowFocus: false,
         refetchOnMount: false,

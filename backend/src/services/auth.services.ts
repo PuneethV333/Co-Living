@@ -44,7 +44,7 @@ export const getMeServices = async (
 
     const cached = await getVal(cacheKey);
 
-    if (cached) {
+    if (cached !== null) {
         return {
             data: JSON.parse(cached),
             source: "redis",

@@ -6,8 +6,6 @@ import { MobileLayout } from "./subPages/MobileLayout";
 import { DesktopLayout } from "./subPages/DesktopLayout";
 import { AlertCircle } from "lucide-react";
 
-
-
 const PROPERTY_EMOJI: Record<string, string> = {
   apartment: "🏢",
   house: "🏠",
@@ -22,7 +20,6 @@ const PROPERTY_EMOJI: Record<string, string> = {
   land: "🌿",
 };
 
-
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -35,7 +32,7 @@ const PropertyDetail = () => {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [mapOpen, setMapOpen] = useState(true);
-  const [mapCollapsed, setMapCollapsed] = useState(false); 
+  const [mapCollapsed, setMapCollapsed] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +40,6 @@ const PropertyDetail = () => {
     property?.location.coordinates.lat !== null &&
     property?.location.coordinates.lng !== null;
 
-  
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
@@ -52,7 +48,6 @@ const PropertyDetail = () => {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
-  
   const scrollTo = (id: string) => {
     setActiveTab(id);
     const el = document.getElementById(id);
@@ -77,7 +72,7 @@ const PropertyDetail = () => {
           Property not found
         </p>
         <button
-        type="button"
+          type="button"
           onClick={() => navigate(-1)}
           className="rounded-xl bg-orange-500 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-orange-400 transition"
         >

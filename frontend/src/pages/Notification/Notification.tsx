@@ -13,7 +13,6 @@ const Notifications = () => {
     const [tab, setTab] = useState<FilterTab>("all");
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
-    // Filter
     const filtered = useMemo(() => {
         if (tab === "unread") return notifications.filter((n) => !n.sent);
         if (tab === "action") return notifications.filter((n) => n.requiresAction && !n.replied);

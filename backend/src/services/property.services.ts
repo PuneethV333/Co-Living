@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { qdrantClient } from "../config/qdrant.config";
 import { nameSpace } from "../constants/nameSpace";
 import { Property } from "../models/property.models"
@@ -23,14 +24,12 @@ export const getPropertyDataService = async (
 
     const cached = await getVal(cacheKey);
 
-    if (cached) {
+    if (cached !== null) {
         return {
             data: JSON.parse(cached),
             source: "redis",
         };
     }
-
-
 
     const data = await Property.find({
         isActive: true,
@@ -59,7 +58,7 @@ export const getPropertyDetailService = async (firebaseUid: string, propertyId: 
 
     const cacheKey = `property:${propertyId}:${firebaseUid}`
     const cached = await getVal(cacheKey);
-    if (cached) {
+    if (cached !== null) {
         return { data: JSON.parse(cached), source: "redis" }
     }
 
@@ -211,9 +210,9 @@ export const getMyPropertiesService = async (firebaseUid: string) => {
     const cacheKey = `my-properties:${firebaseUid}`
 
     const cached = await getVal(cacheKey)
-    
-    if(cached){
-        return {data:JSON.parse(cached),source:"redis"}
+
+    if (cached !== null) {
+        return { data: JSON.parse(cached), source: "redis" }
     }
 
     const properties = await Property.find({
@@ -221,7 +220,7 @@ export const getMyPropertiesService = async (firebaseUid: string) => {
     }).populate("ownerId", "name phoneNumber verified")
         .lean();
 
-    await setValKey(cacheKey,JSON.stringify(properties))
+    await setValKey(cacheKey, JSON.stringify(properties))
 
-    return {data:properties,source:"db"}
+    return { data: properties, source: "db" }
 }

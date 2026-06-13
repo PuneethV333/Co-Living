@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { Search, X, LayoutGrid, List, Loader2 } from "lucide-react";
@@ -6,7 +7,6 @@ import { useSearchProperties } from "../../hooks/useProperty";
 import { CardSkeleton } from "../Home/component/CardSkeleton";
 import { PropertyCard } from "../../components/PropertyCard";
 
-// ── Browse page ───────────────────────────────────────────────────────────────
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQ = searchParams.get("q") ?? "";
@@ -30,13 +30,12 @@ const Browse = () => {
       setSearched(true);
       search(initialQ.trim());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = () => {
     if (!query.trim()) return;
     setSearched(true);
-    // keep URL in sync so it's shareable / back-button friendly
+
     setSearchParams({ q: query.trim() }, { replace: true });
     search(query.trim());
   };

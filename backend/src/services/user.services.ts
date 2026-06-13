@@ -32,7 +32,7 @@ export const updateUserDataService = async (firebaseUid: string, payload: userUp
 export const getSavedPropertyDataService = async (firebaseUid: string) => {
     const cacheKey = `saved:${firebaseUid}`
     const cached = await getVal(cacheKey)
-    if (cached) {
+    if (cached !== null) {
         return { data: JSON.parse(cached), source: "redis" }
     }
 

@@ -36,7 +36,6 @@ const NavBar = () => {
   const hasNew = newNotifications.length > 0;
   const isOwner = user?.role === "Owner";
 
-  // focus input when mobile search expands
   useEffect(() => {
     if (searchOpen) {
       setTimeout(() => searchInputRef.current?.focus(), 50);
@@ -197,7 +196,7 @@ const NavBar = () => {
             {/* Dashboard toggle */}
             <button
               type="button"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/home/owner")}
               className={`hidden sm:flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[13px] font-medium transition ${
                 location.pathname === "/home"
                   ? "border-orange-500/40 bg-orange-500/10 text-orange-300"
