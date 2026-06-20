@@ -1,6 +1,8 @@
 import z from "zod";
 import { IUser } from "./user.types";
 
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
 export const authResSchema = z.object({
   firebaseUid: z.string(),
   _id: z.string(),
@@ -14,6 +16,8 @@ export type GetMeServiceResponse = {
   source: "redis" | "db";
 } | null;
 
+// ── Onboarding ────────────────────────────────────────────────────────────────
+
 export const tenantProfileSchema = z.object({
   occupationStatus: z.enum(["student", "working-professional", "other"]),
   monthlyIncome: z.number(),
@@ -25,16 +29,20 @@ export const ownerProfileSchema = z.object({
 
 export const completeOnBoardingReqBodySchema = z.object({
   name: z.string(),
-  profilePic: z.url().default("https://res.cloudinary.com/deymewscv/image/upload/v1760774522/hqoltmqamhhjfz7divf1.jpg"),
+  profilePic: z
+    .string()
+    .url()
+    .default(
+      "https://res.cloudinary.com/deymewscv/image/upload/v1760774522/hqoltmqamhhjfz7divf1.jpg"
+    ),
   dob: z.coerce.date(),
-  email: z.email().nullish(),
+  email: z.string().email().nullish(),
   phoneNumber: z.string().nullish(),
   role: z.enum(["Tenant", "Owner"]),
   bio: z.string().nullish(),
-  
+  verified: z.boolean().default(false),
   tenantProfile: tenantProfileSchema.nullish(),
   ownerProfile: ownerProfileSchema.nullish(),
-  verified: z.boolean().default(false),
 });
 
 export type completeOnBoardingReqBodyType = z.infer<

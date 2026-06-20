@@ -9,6 +9,8 @@ import {
   Briefcase,
   Sparkles,
   CheckCircle2,
+  Phone,
+  Mail,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -44,6 +46,9 @@ const OnBoarding = () => {
   });
   const [s2Owner, setS2Owner] = useState<Step2OwnerData>({ businessName: "" });
 
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
@@ -53,7 +58,9 @@ const OnBoarding = () => {
 
   useEffect(() => {
     const displayName = Auth.currentUser?.displayName;
+    const firebaseEmail = Auth.currentUser?.email;
     if (displayName) setS1((p) => ({ ...p, name: displayName }));
+    if (firebaseEmail) setEmail(firebaseEmail);
   }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,6 +107,14 @@ const OnBoarding = () => {
       toast.error("Please enter your business name");
       return false;
     }
+    if (phone && phone.length !== 10) {
+      toast.error("Enter a valid 10-digit phone number");
+      return false;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Enter a valid email address");
+      return false;
+    }
     return true;
   };
 
@@ -111,12 +126,14 @@ const OnBoarding = () => {
 
     const payload: completeOnBoardingPayloadType = {
       name: s1.name,
-      email: Auth.currentUser?.email ?? undefined,
       profilePic:
         s1.profilePic || "https://api.dicebear.com/7.x/thumbs/svg?seed=user",
       dob: new Date(s1.dob),
       role: s1.role,
       bio: s1.bio || undefined,
+      email: email || undefined,
+      phoneNumber: phone ? `+91${phone}` : undefined,
+      verified: false,
       ...(s1.role === "Tenant"
         ? {
             tenantProfile: {
@@ -166,6 +183,7 @@ const OnBoarding = () => {
               </p>
             </div>
 
+            {/* Photo */}
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 flex items-center gap-4">
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -213,6 +231,7 @@ const OnBoarding = () => {
               </div>
             </div>
 
+            {/* Name */}
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-1.5">
                 Full Name
@@ -225,6 +244,7 @@ const OnBoarding = () => {
               />
             </div>
 
+            {/* DOB + Role */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-1.5">
@@ -259,6 +279,7 @@ const OnBoarding = () => {
               </div>
             </div>
 
+            {/* Bio */}
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-1.5">
                 Bio{" "}
@@ -289,12 +310,15 @@ const OnBoarding = () => {
                 Helps us match you with compatible roommates and properties.
               </p>
             </div>
+
             <div className="flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 w-fit">
               <span>🔥</span>
               <span className="text-[13px] font-semibold text-orange-300">
                 Tenant Profile
               </span>
             </div>
+
+            {/* Occupation */}
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-3">
                 Occupation Status
@@ -346,6 +370,8 @@ const OnBoarding = () => {
                 ))}
               </div>
             </div>
+
+            {/* Income */}
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-3">
                 Monthly Income{" "}
@@ -374,6 +400,14 @@ const OnBoarding = () => {
                 <span className="text-[11px] text-zinc-600">₹2L+</span>
               </div>
             </div>
+
+            {/* Contact Details */}
+            <ContactFields
+              phone={phone}
+              email={email}
+              onPhoneChange={setPhone}
+              onEmailChange={setEmail}
+            />
           </div>
         )}
 
@@ -392,12 +426,14 @@ const OnBoarding = () => {
                 reputation.
               </p>
             </div>
+
             <div className="flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 w-fit">
               <span>🏠</span>
               <span className="text-[13px] font-semibold text-orange-300">
                 Owner Profile
               </span>
             </div>
+
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 flex flex-col gap-5">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-orange-500/15 flex items-center justify-center shrink-0">
@@ -422,6 +458,14 @@ const OnBoarding = () => {
                 />
               </div>
             </div>
+
+            {/* Contact Details */}
+            <ContactFields
+              phone={phone}
+              email={email}
+              onPhoneChange={setPhone}
+              onEmailChange={setEmail}
+            />
           </div>
         )}
 
@@ -461,5 +505,82 @@ const OnBoarding = () => {
     </div>
   );
 };
+
+// ── Shared contact fields component ──────────────────────────────────────────
+
+interface ContactFieldsProps {
+  phone: string;
+  email: string;
+  onPhoneChange: (v: string) => void;
+  onEmailChange: (v: string) => void;
+}
+
+const ContactFields = ({
+  phone,
+  email,
+  onPhoneChange,
+  onEmailChange,
+}: ContactFieldsProps) => (
+  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 flex flex-col gap-5">
+    <div className="flex items-center gap-3">
+      <div className="h-10 w-10 rounded-xl bg-orange-500/15 flex items-center justify-center shrink-0">
+        <Phone size={18} className="text-orange-400" />
+      </div>
+      <div>
+        <p className="text-[14px] font-semibold">Contact Details</p>
+        <p className="text-[12px] text-zinc-500">
+          Used for booking and account recovery
+        </p>
+      </div>
+    </div>
+
+    {/* Phone */}
+    <div>
+      <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-1.5">
+        Phone Number{" "}
+        <span className="normal-case font-normal text-zinc-600">
+          (optional)
+        </span>
+      </label>
+      <div className="flex gap-2">
+        <div className="flex items-center gap-2 rounded-xl border border-zinc-700/50 bg-zinc-800/60 px-3 py-3 shrink-0">
+          <span>🇮🇳</span>
+          <span className="text-[13px] text-zinc-400">+91</span>
+        </div>
+        <input
+          value={phone}
+          onChange={(e) =>
+            onPhoneChange(e.target.value.replace(/\D/g, "").slice(0, 10))
+          }
+          placeholder="98765 43210"
+          className="flex-1 rounded-xl border border-zinc-700/50 bg-zinc-800/60 px-4 py-3 text-[14px] text-white placeholder-zinc-600 outline-none focus:border-orange-500/70 focus:ring-2 focus:ring-orange-500/20 transition"
+        />
+      </div>
+    </div>
+
+    {/* Email */}
+    <div>
+      <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-1.5">
+        Email Address{" "}
+        <span className="normal-case font-normal text-zinc-600">
+          (optional)
+        </span>
+      </label>
+      <div className="relative">
+        <Mail
+          size={15}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
+          placeholder="you@example.com"
+          className="w-full rounded-xl border border-zinc-700/50 bg-zinc-800/60 pl-9 pr-4 py-3 text-[14px] text-white placeholder-zinc-600 outline-none focus:border-orange-500/70 focus:ring-2 focus:ring-orange-500/20 transition"
+        />
+      </div>
+    </div>
+  </div>
+);
 
 export default OnBoarding;

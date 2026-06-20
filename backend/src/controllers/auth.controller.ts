@@ -73,33 +73,31 @@ export const getMe = async (req: Request, res: Response) => {
 };
 
 export const completeOnBoarding = async (req: Request, res: Response) => {
-    try {
-        const firebaseUid = req.user?.firebaseUid;
+  try {
+    const firebaseUid = req.user?.firebaseUid;
 
-        if (!firebaseUid) {
-            return res.status(401).json({
-                message: "Unauthorized",
-            });
-        }
-
-        const parsed = completeOnBoardingReqBodySchema.safeParse(req.body);
-
-        if (!parsed.success) {
-            return res.status(400).json({
-                message: "schema mismatch",
-                error: parsed.error.message,
-            });
-        }
-
-        const result = await completeOnBoardingServices(firebaseUid, parsed.data);
-
-        return res.status(200).json({
-            data: result.user,
-            success: result.success,
-        });
-    } catch (err) {
-        res.status(500).json(getError(err));
+    if (!firebaseUid) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
+
+    const parsed = completeOnBoardingReqBodySchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "schema mismatch",
+        error: parsed.error.message,
+      });
+    }
+
+    const result = await completeOnBoardingServices(firebaseUid, parsed.data);
+
+    return res.status(200).json({
+      data: result.user,
+      success: result.success,
+    });
+  } catch (err) {
+    res.status(500).json(getError(err));
+  }
 };
 
 export const sendOtp = async (req: Request, res: Response) => {
