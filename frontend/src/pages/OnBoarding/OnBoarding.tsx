@@ -8,21 +8,12 @@ import {
   GraduationCap,
   Briefcase,
   Sparkles,
-  Phone,
   CheckCircle2,
-  RefreshCw,
-  Mail,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import Spinner from "../../components/Spinner";
-import {
-  useCompleteOnBoarding,
-  useSendOtp,
-  useVerifyOtp,
-  useSendViaEmailOtp,
-  useVerifyViaEmailOtp,
-} from "../../hooks/useAuth";
+import { useCompleteOnBoarding } from "../../hooks/useAuth";
 import type {
   completeOnBoardingPayloadType,
   Role,
@@ -33,21 +24,11 @@ import type {
 import { getImgUrl } from "../../utils/getUrlImg";
 import { Auth } from "../../config/firebase.config";
 import { StepBar } from "../../components/StepVar";
-import { OtpBoxes } from "./OtpBoxes";
-
-type VerifyMethod = "phone" | "email";
 
 const OnBoarding = () => {
   const { mutate: onBoard, isPending } = useCompleteOnBoarding();
-  const { mutateAsync: sendOtp, isPending: sendingOtp } = useSendOtp();
-  const { mutateAsync: verifyOtp, isPending: verifyingOtp } = useVerifyOtp();
-  const { mutateAsync: sendEmailOtp, isPending: sendingEmail } =
-    useSendViaEmailOtp();
-  const { mutateAsync: verifyEmailOtp, isPending: verifyingEmail } =
-    useVerifyViaEmailOtp();
 
   const [step, setStep] = useState(1);
-  const [verifyMethod, setVerifyMethod] = useState<VerifyMethod>("phone");
 
   const [s1, setS1] = useState<Step1Data>({
     profilePic: "",
@@ -63,42 +44,17 @@ const OnBoarding = () => {
   });
   const [s2Owner, setS2Owner] = useState<Step2OwnerData>({ businessName: "" });
 
-  const [phone, setPhone] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  const [emailOtp, setEmailOtp] = useState(["", "", "", "", "", ""]);
-  const [emailOtpSent, setEmailOtpSent] = useState(false);
-  const [emailOtpVerified, setEmailOtpVerified] = useState(false);
-  const emailOtpRefs = useRef<(HTMLInputElement | null)[]>([]);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  const isVerified = verifyMethod === "phone" ? otpVerified : emailOtpVerified;
-  const userEmail = Auth.currentUser?.email ?? "";
+  const today = new Date().toISOString().split("T")[0];
+  const formatIncome = (v: number) =>
+    v >= 200000 ? "₹2L+" : `₹${v.toLocaleString("en-IN")}`;
 
   useEffect(() => {
     const displayName = Auth.currentUser?.displayName;
     if (displayName) setS1((p) => ({ ...p, name: displayName }));
   }, []);
-
-  const switchMethod = (method: VerifyMethod) => {
-    setVerifyMethod(method);
-    setOtp(["", "", "", "", "", ""]);
-    setEmailOtp(["", "", "", "", "", ""]);
-    setOtpSent(false);
-    setEmailOtpSent(false);
-    setOtpVerified(false);
-    setEmailOtpVerified(false);
-  };
-
-  const today = new Date().toISOString().split("T")[0];
-  const formattedPhone = phone.startsWith("+") ? phone : `+91${phone}`;
-  const formatIncome = (v: number) =>
-    v >= 200000 ? "₹2L+" : `₹${v.toLocaleString("en-IN")}`;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -138,6 +94,7 @@ const OnBoarding = () => {
     }
     return true;
   };
+
   const validateStep2 = () => {
     if (s1.role === "Owner" && !s2Owner.businessName.trim()) {
       toast.error("Please enter your business name");
@@ -146,103 +103,7 @@ const OnBoarding = () => {
     return true;
   };
 
-  const handleSendOtp = async () => {
-    if (!phone || phone.length < 10) {
-      toast.error("Enter a valid 10-digit phone number");
-      return;
-    }
-    if (otpSent) setOtp(["", "", "", "", "", ""]);
-    try {
-      const res = await sendOtp(formattedPhone);
-      if (res?.success) {
-        setOtpSent(true);
-        toast.success("OTP sent!");
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to send OTP");
-    }
-  };
-
-  const handleOtpChange = (
-    index: number,
-    value: string,
-    refs: React.MutableRefObject<(HTMLInputElement | null)[]>,
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    current: string[],
-  ) => {
-    if (!/^\d*$/.test(value)) return;
-    const next = [...current];
-    next[index] = value.slice(-1);
-    setter(next);
-    if (value && index < 5) refs.current[index + 1]?.focus();
-  };
-
-  const handleOtpKeyDown = (
-    index: number,
-    e: React.KeyboardEvent,
-    refs: React.MutableRefObject<(HTMLInputElement | null)[]>,
-    current: string[],
-  ) => {
-    if (e.key === "Backspace" && !current[index] && index > 0)
-      refs.current[index - 1]?.focus();
-  };
-
-  const handleVerifyOtp = async () => {
-    const code = otp.join("");
-    if (code.length < 6) {
-      toast.error("Enter the full 6-digit OTP");
-      return;
-    }
-    try {
-      const res = await verifyOtp({ phone: formattedPhone, otp: code });
-      if (res?.success) {
-        setOtpVerified(true);
-        toast.success("Phone verified!");
-      }
-    } catch {
-      toast.error("Invalid OTP. Try again.");
-    }
-  };
-
-  const handleSendEmailOtp = async () => {
-    if (!userEmail) {
-      toast.error("No email found on your account");
-      return;
-    }
-    if (emailOtpSent) setEmailOtp(["", "", "", "", "", ""]);
-    try {
-      const res = await sendEmailOtp(userEmail);
-      if (res?.success) {
-        setEmailOtpSent(true);
-        toast.success(`OTP sent to ${userEmail}`);
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to send OTP");
-    }
-  };
-
-  const handleVerifyEmailOtp = async () => {
-    const code = emailOtp.join("");
-    if (code.length < 6) {
-      toast.error("Enter the full 6-digit OTP");
-      return;
-    }
-    try {
-      const res = await verifyEmailOtp({ email: userEmail, otp: code });
-      if (res?.success) {
-        setEmailOtpVerified(true);
-        toast.success("Email verified!");
-      }
-    } catch {
-      toast.error("Invalid OTP. Try again.");
-    }
-  };
-
   const handleSubmit = () => {
-    if (!isVerified) {
-      toast.error("Please verify your identity");
-      return;
-    }
     if (uploadingPhoto) {
       toast.error("Please wait for the photo to finish uploading");
       return;
@@ -256,8 +117,6 @@ const OnBoarding = () => {
       dob: new Date(s1.dob),
       role: s1.role,
       bio: s1.bio || undefined,
-      phoneNumber: verifyMethod === "phone" ? formattedPhone : undefined,
-      verified: true,
       ...(s1.role === "Tenant"
         ? {
             tenantProfile: {
@@ -285,12 +144,12 @@ const OnBoarding = () => {
           </span>
         </div>
         <span className="text-[13px] text-zinc-500 font-medium">
-          Step {step} of 3
+          Step {step} of 2
         </span>
       </header>
 
       <div className="px-5 pt-3">
-        <StepBar current={step} total={3} />
+        <StepBar current={step} total={2} />
       </div>
 
       <main className="flex-1 flex flex-col px-5 py-6 max-w-lg mx-auto w-full">
@@ -566,256 +425,6 @@ const OnBoarding = () => {
           </div>
         )}
 
-        {/* ════ STEP 3 — VERIFY ════ */}
-        {step === 3 && (
-          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-right-4 duration-300">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-orange-400 mb-2">
-                Step 3 — Verify Account
-              </p>
-              <h1 className="text-2xl font-bold">Verify your identity</h1>
-              <p className="mt-1 text-[13px] text-zinc-500">
-                Choose how you'd like to verify your account.
-              </p>
-            </div>
-
-            {/* ── Method selector ── */}
-            <div className="flex gap-3">
-              {[
-                {
-                  method: "phone" as VerifyMethod,
-                  icon: <Phone size={15} />,
-                  label: "Phone OTP",
-                  sub: "Via SMS",
-                },
-                {
-                  method: "email" as VerifyMethod,
-                  icon: <Mail size={15} />,
-                  label: "Email OTP",
-                  sub: userEmail
-                    ? `To ${userEmail.split("@")[0]}…`
-                    : "Via email",
-                },
-              ].map(({ method, icon, label, sub }) => (
-                <button
-                  key={method}
-                  onClick={() => switchMethod(method)}
-                  className={`flex-1 flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
-                    verifyMethod === method
-                      ? "border-orange-500 bg-orange-500/10"
-                      : "border-white/8 bg-white/3 hover:border-white/15"
-                  }`}
-                >
-                  <div
-                    className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${verifyMethod === method ? "bg-orange-500" : "bg-zinc-800"}`}
-                  >
-                    <span className="text-white">{icon}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p
-                      className={`text-[13px] font-semibold ${verifyMethod === method ? "text-white" : "text-zinc-400"}`}
-                    >
-                      {label}
-                    </p>
-                    <p className="text-[11px] text-zinc-600 truncate">{sub}</p>
-                  </div>
-                  <div
-                    className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ml-auto shrink-0 ${verifyMethod === method ? "border-orange-500" : "border-zinc-600"}`}
-                  >
-                    {verifyMethod === method && (
-                      <div className="h-2 w-2 rounded-full bg-orange-500" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {/* ── PHONE flow ── */}
-            {verifyMethod === "phone" && (
-              <div className="flex flex-col gap-4">
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-1.5">
-                    Phone Number
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="flex items-center gap-2 rounded-xl border border-zinc-700/50 bg-zinc-800/60 px-3 py-3 shrink-0">
-                      <span>🇮🇳</span>
-                      <span className="text-[13px] text-zinc-400">+91</span>
-                    </div>
-                    <input
-                      value={phone}
-                      onChange={(e) => {
-                        setPhone(
-                          e.target.value.replace(/\D/g, "").slice(0, 10),
-                        );
-                        if (otpSent) {
-                          setOtpSent(false);
-                          setOtpVerified(false);
-                          setOtp(["", "", "", "", "", ""]);
-                        }
-                      }}
-                      placeholder="98765 43210"
-                      className="flex-1 rounded-xl border border-zinc-700/50 bg-zinc-800/60 px-4 py-3 text-[14px] text-white placeholder-zinc-600 outline-none focus:border-orange-500/70 focus:ring-2 focus:ring-orange-500/20 transition"
-                    />
-                    <button
-                      onClick={handleSendOtp}
-                      disabled={sendingOtp || phone.length < 10}
-                      className="flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-3 text-[13px] font-semibold text-white hover:bg-orange-400 transition disabled:opacity-50 active:scale-95 whitespace-nowrap"
-                    >
-                      {sendingOtp ? (
-                        <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      ) : otpSent ? (
-                        <>
-                          <RefreshCw size={14} /> Resend
-                        </>
-                      ) : (
-                        "Send OTP"
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {otpSent && !otpVerified && (
-                  <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-3">
-                      Enter OTP sent to +91{phone}
-                    </label>
-                    <OtpBoxes
-                      values={otp}
-                      refs={otpRefs}
-                      onChange={(i, v) =>
-                        handleOtpChange(i, v, otpRefs, setOtp, otp)
-                      }
-                      onKeyDown={(i, e) => handleOtpKeyDown(i, e, otpRefs, otp)}
-                    />
-                    <button
-                      onClick={handleVerifyOtp}
-                      disabled={verifyingOtp || otp.join("").length < 6}
-                      className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-800 border border-zinc-700 py-3 text-[14px] font-semibold text-white hover:bg-zinc-700 transition disabled:opacity-50"
-                    >
-                      {verifyingOtp ? (
-                        <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      ) : (
-                        "Verify OTP"
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {otpVerified && (
-                  <div className="flex items-center gap-3 rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3">
-                    <CheckCircle2
-                      size={20}
-                      className="text-green-400 shrink-0"
-                    />
-                    <div>
-                      <p className="text-[13px] font-semibold text-green-300">
-                        Phone verified!
-                      </p>
-                      <p className="text-[11px] text-zinc-500">
-                        +91{phone} is confirmed
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ── EMAIL flow ── */}
-            {verifyMethod === "email" && (
-              <div className="flex flex-col gap-4">
-                {/* Email display */}
-                <div className="rounded-2xl border border-white/8 bg-white/3 px-4 py-3 flex items-center gap-3">
-                  <Mail size={16} className="text-orange-400 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] text-zinc-500">Sending OTP to</p>
-                    <p className="text-[14px] font-semibold text-white truncate">
-                      {userEmail || "No email on account"}
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleSendEmailOtp}
-                    disabled={sendingEmail || !userEmail || emailOtpVerified}
-                    className="flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-[12px] font-semibold text-white hover:bg-orange-400 transition disabled:opacity-50 active:scale-95 whitespace-nowrap shrink-0"
-                  >
-                    {sendingEmail ? (
-                      <span className="h-3.5 w-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                    ) : emailOtpSent ? (
-                      <>
-                        <RefreshCw size={12} /> Resend
-                      </>
-                    ) : (
-                      "Send OTP"
-                    )}
-                  </button>
-                </div>
-
-                {emailOtpSent && !emailOtpVerified && (
-                  <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-3">
-                      Enter OTP sent to {userEmail}
-                    </label>
-                    <OtpBoxes
-                      values={emailOtp}
-                      refs={emailOtpRefs}
-                      onChange={(i, v) =>
-                        handleOtpChange(
-                          i,
-                          v,
-                          emailOtpRefs,
-                          setEmailOtp,
-                          emailOtp,
-                        )
-                      }
-                      onKeyDown={(i, e) =>
-                        handleOtpKeyDown(i, e, emailOtpRefs, emailOtp)
-                      }
-                    />
-                    <button
-                      onClick={handleVerifyEmailOtp}
-                      disabled={verifyingEmail || emailOtp.join("").length < 6}
-                      className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-800 border border-zinc-700 py-3 text-[14px] font-semibold text-white hover:bg-zinc-700 transition disabled:opacity-50"
-                    >
-                      {verifyingEmail ? (
-                        <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      ) : (
-                        "Verify OTP"
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {emailOtpVerified && (
-                  <div className="flex items-center gap-3 rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3">
-                    <CheckCircle2
-                      size={20}
-                      className="text-green-400 shrink-0"
-                    />
-                    <div>
-                      <p className="text-[13px] font-semibold text-green-300">
-                        Email verified!
-                      </p>
-                      <p className="text-[11px] text-zinc-500">
-                        {userEmail} is confirmed
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {s1.role === "Owner" && (
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 flex gap-3">
-                <span className="text-orange-400 shrink-0 mt-0.5">⚠️</span>
-                <p className="text-[12px] text-zinc-500 leading-relaxed">
-                  Bank details are used only for payout processing. Payouts
-                  activate once your first listing goes live.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* ── Navigation ── */}
         <div className="mt-8 flex gap-3">
           {step > 1 && (
@@ -830,23 +439,17 @@ const OnBoarding = () => {
             onClick={() => {
               if (step === 1) {
                 if (validateStep1()) setStep(2);
-              } else if (step === 2) {
-                if (validateStep2()) setStep(3);
               } else {
-                handleSubmit();
+                if (validateStep2()) handleSubmit();
               }
             }}
-            disabled={step === 3 && !isVerified}
+            disabled={isPending}
             className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-orange-500/20 hover:bg-orange-400 transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {step === 3 ? (
-              isVerified ? (
-                <>
-                  <CheckCircle2 size={16} /> Complete Setup
-                </>
-              ) : (
-                "Complete Setup"
-              )
+            {step === 2 ? (
+              <>
+                <CheckCircle2 size={16} /> Complete Setup
+              </>
             ) : (
               <>
                 Continue <ArrowRight size={16} />

@@ -1,25 +1,23 @@
-import {z} from "zod"
+import { z } from "zod"
 
 export const tenantProfileSchema = z.object({
-    occupationStatus:z.enum(["student","working-professional","other"]),
-    monthlyIncome:z.number()
+    occupationStatus: z.enum(["student", "working-professional", "other"]),
+    monthlyIncome: z.number(),
 })
 
 export const ownerProfileSchema = z.object({
-    businessName:z.string()
+    businessName: z.string(),
 })
 
 export const completeOnBoardingPayloadSchema = z.object({
-    name:z.string(),
-    profilePic:z.url(),
-    dob:z.coerce.date(),
-    email:z.email().optional(),
-    phoneNumber:z.string().optional(),
-    role:z.enum(["Tenant","Owner"]),
-    bio:z.string().optional(),
-    tenantProfile:tenantProfileSchema.optional(),
-    ownerProfile:ownerProfileSchema.optional(),
-    verified:z.boolean().default(false)
+    name: z.string(),
+    profilePic: z.string().url(),
+    dob: z.coerce.date(),
+    email: z.string().email().optional(),
+    role: z.enum(["Tenant", "Owner"]),
+    bio: z.string().optional(),
+    tenantProfile: tenantProfileSchema.optional(),
+    ownerProfile: ownerProfileSchema.optional(),
 })
 
 export type completeOnBoardingPayloadType = z.infer<typeof completeOnBoardingPayloadSchema>
@@ -27,21 +25,20 @@ export type completeOnBoardingPayloadType = z.infer<typeof completeOnBoardingPay
 export type Role = "Tenant" | "Owner";
 export type OccupationStatus = "student" | "working-professional" | "other";
 
-
 export interface Step1Data {
-  profilePic: string;
-  profileFile: File | null;
-  name: string;
-  dob: string;
-  role: Role;
-  bio: string;
+    profilePic: string;
+    profileFile: File | null;
+    name: string;
+    dob: string;
+    role: Role;
+    bio: string;
 }
 
 export interface Step2TenantData {
-  occupationStatus: OccupationStatus;
-  monthlyIncome: number;
+    occupationStatus: OccupationStatus;
+    monthlyIncome: number;
 }
 
 export interface Step2OwnerData {
-  businessName: string;
+    businessName: string;
 }
