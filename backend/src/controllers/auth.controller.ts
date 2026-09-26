@@ -28,7 +28,11 @@ export const auth = async (req: Request, res: Response) => {
             });
         }
 
-        const { user, isNewUser } = await handleAuth(firebaseUid);
+        const { user, isNewUser } = await handleAuth(firebaseUid, {
+            email: req.user?.email,
+            name: req.user?.name,
+            profilePic: req.user?.profilePic ?? "",
+        });
 
         const data: authResType = {
             firebaseUid: user.firebaseUid,
@@ -193,7 +197,7 @@ export const verifyOtpViaEmail = async (
 
         return res.status(200).json({
             success: true,
-            message: "Phone verified",
+            message: "Email verified",
         });
     } catch (err) {
         return res.status(500).json(getError(err));

@@ -231,12 +231,12 @@ export const getRoomMatePreferenceService = async (firebaseUid: string) => {
         }
     );
 
-    const userIds = matches.points.map(
-        (point) => point.payload?.userId as string
-    );
+    const userIds = matches.points
+        .map((point) => point.payload?.userId)
+        .filter((id): id is string => typeof id === "string");
 
-    const users = await User.find({
-        _id: { $in: userIds },
+    const preferences = await PropertyPreference.find({
+        userId: { $in: userIds },
     }).lean();
 
     const scoreMap = new Map(
@@ -246,8 +246,8 @@ export const getRoomMatePreferenceService = async (firebaseUid: string) => {
         ])
     );
 
-    return users.map((u) => ({
-        ...u,
-        matchScore: scoreMap.get(u._id.toString()),
+    return preferences.map((pref) => ({
+        ...pref,
+        matchScore: scoreMap.get(pref.userId.toString()),
     }));
 }

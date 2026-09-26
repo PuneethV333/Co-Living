@@ -59,10 +59,8 @@ export const useToggleSaveProperty = () => {
         mutationFn: toggleSavePropertyApi,
         mutationKey:["toggle"],
 
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["saved-properties"],
-            });
+        onSuccess: (res) => {
+            queryClient.setQueryData(["saved", "property"], res);
 
             queryClient.invalidateQueries({
                 queryKey: ["properties"],

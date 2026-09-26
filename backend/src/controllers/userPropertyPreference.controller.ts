@@ -82,7 +82,7 @@ export const updateUserPropertyPreference = async (req: Request, res: Response) 
         const parsed = createUserPropertyPreferencePayloadSchema.safeParse(req.body)
 
         if (!parsed.success) {
-            return res.status(401).json({
+            return res.status(400).json({
                 message: "schema missMatch"
             })
         }

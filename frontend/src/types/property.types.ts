@@ -19,8 +19,8 @@ export const propertySchema = z.object({
         state: z.string(),
         zipCode: z.string(),
         coordinates: z.object({
-            lat: z.number(),
-            lng: z.number(),
+            lat: z.number().nullable(),
+            lng: z.number().nullable(),
         }),
     }),
     propertyType: z.enum([
@@ -107,7 +107,7 @@ export interface MobileLayoutProps {
     mapRef: React.RefObject<HTMLDivElement | null>;
     mapCollapsed: boolean;
     hasCoords: boolean;
-    coords: { lat: number; lng: number };
+    coords: { lat: number | null; lng: number | null };
     property: PropertyType;
     setMapCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
     activeTab: string;
@@ -120,7 +120,7 @@ export interface DesktopLayoutProps {
     mapOpen: boolean;
     setMapOpen: React.Dispatch<React.SetStateAction<boolean>>;
     hasCoords: boolean;
-    coords: { lat: number; lng: number };
+    coords: { lat: number | null; lng: number | null };
     property: PropertyType;
     activeTab: string;
     contentRef: React.RefObject<HTMLDivElement | null>;

@@ -31,7 +31,7 @@ export const userSchema = z.object({
   phoneNumber:z.string().optional(),
   role: z.enum(["Tenant", "Owner", "Admin"]),
   dob: z.coerce.date().optional(),
-  email: z.email(),
+  email: z.preprocess((v) => (v === "" ? undefined : v), z.email().optional()),
   profilePic: z.url(),
   bio: z.string().optional(),
   verified: z.boolean(),

@@ -29,6 +29,9 @@ export const authMiddleWare = async (
     req.user = {
       firebaseUid: decodedToken.uid,
       role: user?.role,
+      email: decodedToken.email,
+      name: decodedToken.name,
+      profilePic: decodedToken.picture,
     };
 
     next();

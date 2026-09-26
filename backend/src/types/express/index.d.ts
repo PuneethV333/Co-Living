@@ -5,7 +5,10 @@ declare global {
         interface Request {
             user?:{
                 firebaseUid:string,
-                role?:"Tenant"| "Owner"| "Admin"|undefined
+                role?:"Tenant"| "Owner"| "Admin"|undefined,
+                email?:string,
+                name?:string,
+                profilePic?:string
             }
         }
     }

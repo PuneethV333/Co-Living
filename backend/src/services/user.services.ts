@@ -4,15 +4,30 @@ import { userUpdateType } from "../types/user/user.types"
 import { clearCache, getVal, setValKey } from "../utils/redis.utils"
 
 export const updateUserDataService = async (firebaseUid: string, payload: userUpdateType) => {
-    const user = await User.findOneAndUpdate({
-        firebaseUid
-    }, {
+    const update: Record<string, unknown> = {
         name: payload.name,
-        bio: payload.bio,
-        email: payload.email,
-        phoneNumber: payload.phoneNumber,
-        profilePic: payload.profilePic
-    }, { returnDocument: "after" })
+    };
+
+    if (payload.email) update.email = payload.email;
+    if (payload.phoneNumber) update.phoneNumber = payload.phoneNumber;
+    if (payload.bio) update.bio = payload.bio;
+    if (payload.profilePic) update.profilePic = payload.profilePic;
+
+    const unset: Record<string, 1> = {};
+    if (!payload.email) unset.email = 1;
+    if (!payload.phoneNumber) unset.phoneNumber = 1;
+    if (!payload.bio) unset.bio = 1;
+
+    const user = await User.findOneAndUpdate(
+        {
+            firebaseUid
+        },
+        {
+            ...update,
+            ...(Object.keys(unset).length > 0 && { $unset: unset }),
+        },
+        { returnDocument: "after" }
+    )
 
     if (!user) {
         throw new Error("Failed to update user")

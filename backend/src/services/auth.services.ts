@@ -1,6 +1,4 @@
-import { success } from "zod";
 import { config } from "../config/data.config";
-import { resendConfig } from "../config/resend.config";
 import { twilioClient } from "../config/tiwlio.config";
 import { Owner } from "../models/owner.models";
 import { Tenant } from "../models/tenant.models";
@@ -14,7 +12,16 @@ import {
 import { clearCache, getVal, setValKey } from "../utils/redis.utils";
 import { nodeMailer } from "../config/nodeMailer.config";
 
-export const handleAuth = async (firebaseUid: string) => {
+export interface AuthProfileType {
+    email?: string;
+    name?: string;
+    profilePic?: string;
+}
+
+export const handleAuth = async (
+    firebaseUid: string,
+    profile?: AuthProfileType,
+) => {
     let user = await User.findOne({ firebaseUid }).lean();
     let isNewUser = false;
 
@@ -24,9 +31,28 @@ export const handleAuth = async (firebaseUid: string) => {
             completeOnBoarding: false,
             verified: false,
             role: "Tenant",
+            ...(profile?.name && { name: profile.name }),
+            ...(profile?.email && { email: profile.email }),
+            ...(profile?.profilePic && { profilePic: profile.profilePic }),
         });
         user = created.toObject();
         isNewUser = true;
+    } else if (!user.email || !user.name || !user.profilePic) {
+        const backfill: AuthProfileType = {};
+
+        if (!user.email && profile?.email) backfill.email = profile.email;
+        if (!user.name && profile?.name) backfill.name = profile.name;
+        if (!user.profilePic && profile?.profilePic) backfill.profilePic = profile.profilePic;
+
+        if (Object.keys(backfill).length > 0) {
+            const updated = await User.findOneAndUpdate(
+                { firebaseUid },
+                backfill,
+                { returnDocument: "after" },
+            ).lean();
+
+            if (updated) user = updated;
+        }
     }
 
     const cacheKey = `session:${firebaseUid}`;

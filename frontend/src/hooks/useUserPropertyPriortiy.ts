@@ -19,10 +19,15 @@ export const useGetRoomMatePreference = () =>
     })
 
 export const useCreateUserPropertyPriority = () => {
+    const queryClient = useQueryClient()
     return useMutation({
         mutationKey: ["create", "userPropertyPriority"],
         mutationFn: (data: createUserPropertyPreferencePayloadType) => createUserPriorityApi(data),
-        onSuccess: () => {
+        onSuccess: (res) => {
+            queryClient.setQueryData(["userPropertyPriority"], res)
+            queryClient.invalidateQueries({
+                queryKey: ["roomMate", "userPropertyPriority"],
+            })
             toast.success("created User Priority")
         }, onError: (err: Error) => {
             toast.error(err.message)
@@ -37,7 +42,10 @@ export const useUpdateUserPropertyPriority = () => {
         mutationFn: (data: createUserPropertyPreferencePayloadType) => updateUserPropertyPriorityApi(data),
         onSuccess: (res) => {
             queryClient.setQueryData(["userPropertyPriority"], res)
-            toast.success("created User Priority")
+            queryClient.invalidateQueries({
+                queryKey: ["roomMate", "userPropertyPriority"],
+            })
+            toast.success("updated User Priority")
         }, onError: (err: Error) => {
             toast.error(err.message)
         }

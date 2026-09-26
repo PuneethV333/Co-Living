@@ -12,9 +12,9 @@ export const getUserPropertyPriorityApi = async (): Promise<userPropertyPreferen
     return userPropertyPreferenceSchema.parse(res.data.data)
 }
 
-export const getRoomMatePreferenceApi = async (): Promise<getRoomMatePreferenceType> => {
+export const getRoomMatePreferenceApi = async (): Promise<getRoomMatePreferenceType[]> => {
     const res = await api.get("/api/propertyPreference/roomMate/match");
-    return getRoommatePreferenceSchema.parse(res.data.data)
+    return getRoommatePreferenceSchema.array().parse(res.data.data)
 }
 
 export const updateUserPropertyPriorityApi = async (data: createUserPropertyPreferencePayloadType): Promise<userPropertyPreferenceType> => {

@@ -154,6 +154,8 @@ export const getRoommatePreferenceSchema = z.object({
         metroNearby: z.boolean(),
         parkingRequired: z.boolean(),
     }),
+
+    matchScore: z.number().optional(),
 });
 
 export type getRoomMatePreferenceType = z.infer<typeof getRoommatePreferenceSchema>

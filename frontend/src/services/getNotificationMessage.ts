@@ -11,6 +11,12 @@ export const getNotificationMessage = (notification: notificationType) => {
         case "BOOKING_UPDATE":
             return "updated a booking";
 
+        case "ACCEPT_VISIT_REQUEST":
+            return "accepted your visit request";
+
+        case "REJECT_VISIT_REQUEST":
+            return "declined your visit request";
+
         default:
             return "";
     }
