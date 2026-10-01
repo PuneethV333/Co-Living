@@ -5,7 +5,9 @@ export const ownerIdSchema = z.object({
     _id: z.string(),
     name: z.string(),
     verified: z.boolean(),
-    phoneNumber: z.string(),
+    // The API populates this from User, where phoneNumber is not required.
+    // Do not reject an otherwise valid property when an owner has not added one.
+    phoneNumber: z.string().optional(),
 });
 
 export const propertySchema = z.object({
